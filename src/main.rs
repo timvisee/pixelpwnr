@@ -35,8 +35,8 @@ fn main() {
 ///
 /// The stream is returned as result.
 // TODO: Specify a host here!
-fn create_stream() -> Result<TcpStream, Error> {
-    TcpStream::connect(HOST)
+fn create_stream(host: String) -> Result<TcpStream, Error> {
+    TcpStream::connect(host)
 }
 
 
@@ -75,9 +75,13 @@ impl PixCanvas {
 
     /// Spawn a single painter in a thread.
     fn spawn_painter(&mut self, area: Rect) {
+        // Get the host that will be used
+        let host = self.host.to_string();
+
+        // Create the painter thread
         let thread = thread::spawn(move || {
             // Create a new stream
-            let stream = create_stream()
+            let stream = create_stream(host)
                 .expect("failed to open stream to pixelflut");
 
             // Create a new client
