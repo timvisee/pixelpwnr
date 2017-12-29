@@ -191,9 +191,6 @@ impl Painter {
         // Get an RGB image
         let image = self.image.to_rgb();
 
-        // Define the color to draw with
-        let color = Color::from(0, 255, 255);
-
         // Loop through all the pixels, and set their color
         for x in 0..self.area.w {
             for y in 0..self.area.h {
