@@ -5,4 +5,5 @@ authors = ["Tim Visée <timvisee@gmail.com>"]
 
 [dependencies]
 bufstream = "0.1"
+clap = "2.29"
 image = "0.18"
