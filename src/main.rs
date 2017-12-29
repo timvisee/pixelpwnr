@@ -9,6 +9,7 @@ use std::net::TcpStream;
 use std::path::Path;
 use std::thread;
 use std::thread::JoinHandle;
+use std::time::Duration;
 
 use bufstream::BufStream;
 use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
@@ -16,8 +17,8 @@ use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
 
 
 // The target host
-const HOST: &'static str = "127.0.0.1:8080";
-// const HOST: &'static str = "151.217.38.83:1234";
+// const HOST: &'static str = "127.0.0.1:8080";
+const HOST: &'static str = "151.217.38.83:1234";
 
 // The default size of the command output read buffer
 const CMD_READ_BUFFER_SIZE: usize = 32;
@@ -34,12 +35,13 @@ fn main() {
 
     // Define the image to use
     // TODO: get the image path from the CLI
-    let image_path = "/home/timvisee/Pictures/sample.jpg";
+    let image_path = "/root/image.jpg";
 
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(HOST, image_path, size, 10);
+    let canvas = PixCanvas::new(HOST, image_path, size, 32);
 
-    loop {}
+	// Sleep this thread
+	thread::sleep(Duration::new(10000000, 0));
 }
 
 /// Create a stream to talk to the pixelflut server.
@@ -78,6 +80,7 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
 struct PixCanvas {
     host: &'static str,
     size: (u32, u32),
+	painter_count: usize,
     painters: Vec<JoinHandle<u32>>,
     image: DynamicImage,
 }
@@ -85,13 +88,20 @@ struct PixCanvas {
 impl PixCanvas {
     /// Create a new pixelflut canvas.
     pub fn new(host: &'static str, image_path: &str, size: (u32, u32), painter_count: usize) -> PixCanvas {
+		// Load the image
+		let image = load_image(image_path, &size);
+
         // Initialize the object
         let mut canvas = PixCanvas {
             host,
             size,
+			painter_count,
             painters: Vec::with_capacity(painter_count),
-            image: load_image(image_path, &size),
+            image,
         };
+
+		// Show a status message
+		println!("Starting painter threads...");
 
         // Spawn some painters
         canvas.spawn_painters();
@@ -103,8 +113,17 @@ impl PixCanvas {
     /// Spawn the painters for this canvas
     fn spawn_painters(&mut self) {
         // Spawn some painters
-        for i in 0..10 {
-            self.spawn_painter(Rect::from(i * 100, 0, 100, 1000));
+        for i in 0..self.painter_count {
+			// Define the area to paint per thread
+			let painter_area = Rect::from(
+				i as u32 * (self.size.0 / self.painter_count as u32),
+				0,
+				self.size.0,
+				self.size.1,
+			);
+
+			// Spawn the painter
+            self.spawn_painter(painter_area);
         }
     }
 
