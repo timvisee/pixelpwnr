@@ -88,7 +88,7 @@ fn start(host: &str, count: usize, image_path: &str) {
     let size = (1920u32, 1080u32);
 
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(HOST, image_path, size, count);
+    let canvas = PixCanvas::new(host, image_path, size, count);
 
 	// Sleep this thread
 	thread::sleep(Duration::new(10000000, 0));
