@@ -1,4 +1,5 @@
 extern crate bufstream;
+extern crate clap;
 extern crate image;
 
 use std::env;
@@ -12,6 +13,7 @@ use std::thread::JoinHandle;
 use std::time::Duration;
 
 use bufstream::BufStream;
+use clap::{Arg, App, SubCommand};
 use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
 
 
@@ -19,10 +21,7 @@ use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
 // The target host
 // const HOST: &'static str = "127.0.0.1:8080";
 // const HOST: &'static str = "151.217.38.83:1234";
-const HOST: &'static str = "151.217.47.77:8080";
-
-// The number of painter threads to spawn
-const THREAD_COUNT: usize = 15;
+// const HOST: &'static str = "151.217.47.77:8080";
 
 // The default size of the command output read buffer
 const CMD_READ_BUFFER_SIZE: usize = 16;
@@ -30,6 +29,57 @@ const CMD_READ_BUFFER_SIZE: usize = 16;
 
 
 fn main() {
+    // Handle arguments
+	let matches = App::new("pixelpwnr")
+		.version("0.1")
+		.author("Tim Visee <timvisee@gmail.com>")
+		.about("Pwns pixelflut")
+		.arg(Arg::with_name("host")
+			.short("h")
+			.long("host")
+			.value_name("HOST")
+			.help("The host to pwn \"host:port\"")
+            .required(true)
+			.takes_value(true))
+		.arg(Arg::with_name("count")
+			.short("c")
+			.long("count")
+			.value_name("COUNT")
+			.help("Number of simultanious  threads")
+            .required(true)
+			.takes_value(true))
+		.arg(Arg::with_name("image")
+			.short("i")
+			.long("image")
+			.value_name("PATH")
+			.help("Path of the image to print")
+            .required(true)
+			.takes_value(true))
+		.get_matches();
+
+    // Get the host
+    let host = matches
+        .value_of("host")
+        .expect("Please specify a host");
+
+    // Get the count
+    let count = matches
+        .value_of("count")
+        .expect("Please specify a count")
+        .parse::<usize>()
+        .expect("Invalid count specified");
+
+    // Get the image path
+    let image_path = matches
+        .value_of("image")
+        .expect("Please specify an image path");
+
+    // Start
+    start(host, count, image_path);
+}
+
+/// Start the client.
+fn start(host: &str, count: usize, image_path: &str) {
     // Start
     println!("Starting...");
 
@@ -37,12 +87,8 @@ fn main() {
     // TODO: get the size from the screen
     let size = (1920u32, 1080u32);
 
-    // Define the image to use
-    // TODO: get the image path from the CLI
-    let image_path = "/root/image.jpg";
-
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(HOST, image_path, size, THREAD_COUNT);
+    let canvas = PixCanvas::new(HOST, image_path, size, count);
 
 	// Sleep this thread
 	thread::sleep(Duration::new(10000000, 0));
