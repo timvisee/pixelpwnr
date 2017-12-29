@@ -1,12 +1,17 @@
 extern crate bufstream;
+extern crate image;
 
+use std::env;
+use std::fs::File;
 use std::io::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
+use std::path::Path;
 use std::thread;
 use std::thread::JoinHandle;
 
 use bufstream::BufStream;
+use image::{GenericImage, DynamicImage, FilterType};
 
 
 
@@ -22,11 +27,16 @@ fn main() {
     // Start
     println!("Starting...");
 
-    // let range = Range::new(1, 1000);
-    // let mut rng = rand::thread_rng();
+    // Define the size to use
+    // TODO: get the size from the screen
+    let size = (1000u32, 1000u32);
+
+    // Define the image to use
+    // TODO: get the image path from the CLI
+    let image_path = "/home/timvisee/Pictures/sample.jpg";
 
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(HOST, (1000, 1000), 10);
+    let canvas = PixCanvas::new(HOST, image_path, size, 10);
 
     loop {}
 }
@@ -39,23 +49,47 @@ fn create_stream(host: String) -> Result<TcpStream, Error> {
     TcpStream::connect(host)
 }
 
+/// Load the image at the given path, and size it correctly
+fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
+    // Create a path instance
+    let path = Path::new(&path);
+
+    // TODO: make sure the path exists.
+
+    // Load the image
+    println!("Loading image...");
+    let image = image::open(&path).unwrap();
+
+    // Start processing the image for the screen
+    println!("Processing image...");
+
+    // Resize the image to fit the screen
+    image.resize_exact(
+        size.0,
+        size.1,
+        FilterType::Gaussian,
+    )
+}
+
 
 
 /// A pixflut instance 
 struct PixCanvas {
     host: &'static str,
-    size: (u16, u16),
+    size: (u32, u32),
     painters: Vec<JoinHandle<u32>>,
+    image: DynamicImage,
 }
 
 impl PixCanvas {
     /// Create a new pixelflut canvas.
-    pub fn new(host: &'static str, size: (u16, u16), painter_count: usize) -> PixCanvas {
+    pub fn new(host: &'static str, image_path: &str, size: (u32, u32), painter_count: usize) -> PixCanvas {
         // Initialize the object
         let mut canvas = PixCanvas {
             host,
             size,
             painters: Vec::with_capacity(painter_count),
+            image: load_image(image_path, &size),
         };
 
         // Spawn some painters
@@ -78,6 +112,14 @@ impl PixCanvas {
         // Get the host that will be used
         let host = self.host.to_string();
 
+        // Get the part of the image to draw by this painter
+        let image = self.image.crop(
+            area.x,
+            area.y,
+            area.w,
+            area.h
+        );
+
         // Create the painter thread
         let thread = thread::spawn(move || {
             // Create a new stream
@@ -88,7 +130,7 @@ impl PixCanvas {
             let client = PixClient::new(stream);
 
             // Create a painter
-            let mut painter = Painter::new(client, area);
+            let mut painter = Painter::new(client, area, image);
 
             // Do some work
             loop {
@@ -106,27 +148,42 @@ impl PixCanvas {
 struct Painter {
     client: PixClient,
     area: Rect,
+    image: DynamicImage,
 }
 
 impl Painter {
     /// Create a new painter.
-    pub fn new(client: PixClient, area: Rect) -> Painter {
+    pub fn new(client: PixClient, area: Rect, image: DynamicImage) -> Painter {
         Painter {
             client,
             area,
+            image,
         }
     }
 
     /// Perform work.
     /// Paint the whole defined area.
     pub fn work(&mut self) {
+        // Get an RGB image
+        let image = self.image.to_rgb();
+
         // Define the color to draw with
         let color = Color::from(0, 155, 0);
 
         // Loop through all the pixels, and set their color
-        for x in self.area.x..self.area.x + self.area.w {
-            for y in self.area.y..self.area.y + self.area.h {
-                self.client.write_pixel(x, y, &color);
+        for x in 0..self.area.w {
+            for y in 0..self.area.h {
+                // Get the pixel at this location
+                let pixel = image.get_pixel(x, y);
+
+                pixel.channels();
+
+                // Set the pixel
+                self.client.write_pixel(
+                    x + self.area.x,
+                    y + self.area.y,
+                    &color,
+                );
             }
         }
     }
@@ -150,7 +207,7 @@ impl PixClient {
     }
 
     /// Write a pixel to the given stream.
-    fn write_pixel(&mut self, x: u16, y: u16, color: &Color) {
+    fn write_pixel(&mut self, x: u32, y: u32, color: &Color) {
         // Write the command to set a pixel
         self.write_command(
             format!("PX {} {} {}", x, y, color.as_hex()),
@@ -195,14 +252,14 @@ impl PixClient {
 /// Color structure.
 #[derive(Copy, Clone)]
 struct Color {
-    r: u16,
-    g: u16,
-    b: u16,
+    r: u32,
+    g: u32,
+    b: u32,
 }
 
 impl Color {
     /// Create a new color instance
-    pub fn from(r: u16, g: u16, b: u16) -> Color {
+    pub fn from(r: u32, g: u32, b: u32) -> Color {
         Color {
             r,
             g,
@@ -222,14 +279,14 @@ impl Color {
 /// Rectangle struct.
 pub struct Rect {
     // TODO: Make these properties private
-    pub x: u16,
-    pub y: u16,
-    pub w: u16,
-    pub h: u16,
+    pub x: u32,
+    pub y: u32,
+    pub w: u32,
+    pub h: u32,
 }
 
 impl Rect {
-    pub fn from(x: u16, y: u16, w: u16, h: u16) -> Rect {
+    pub fn from(x: u32, y: u32, w: u32, h: u32) -> Rect {
         Rect {
             x,
             y,
