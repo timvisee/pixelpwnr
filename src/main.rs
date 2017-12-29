@@ -128,7 +128,7 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
 
 /// A pixflut instance 
 struct PixCanvas {
-    host: &'static str,
+    host: String,
     size: (u32, u32),
 	painter_count: usize,
     painters: Vec<JoinHandle<u32>>,
@@ -137,13 +137,13 @@ struct PixCanvas {
 
 impl PixCanvas {
     /// Create a new pixelflut canvas.
-    pub fn new(host: &'static str, image_path: &str, size: (u32, u32), painter_count: usize) -> PixCanvas {
+    pub fn new(host: &str, image_path: &str, size: (u32, u32), painter_count: usize) -> PixCanvas {
 		// Load the image
 		let image = load_image(image_path, &size);
 
         // Initialize the object
         let mut canvas = PixCanvas {
-            host,
+            host: host.to_string(),
             size,
 			painter_count,
             painters: Vec::with_capacity(painter_count),
