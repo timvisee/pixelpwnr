@@ -1,3 +1,7 @@
+extern crate rand;
+
+use rand::distributions::{IndependentSample, Range};
+
 use std::io::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
@@ -9,15 +13,24 @@ fn main() {
     // Start
     println!("Starting...");
 
+    let range = Range::new(1, 1000);
+    let mut rng = rand::thread_rng();
+
     // Create the control stream
     let mut stream = create_stream()
         .expect("failed to open control stream");
 
-    // Write a pixel
-    write_pixel(&mut stream, 100, 100, &Color::from(255, 0, 0));
+    // Create a client
+    let mut client = PixClient::new(stream);
 
-    // TODO: Loop for now as the stream shouldn't close because the application ends
-    loop {}
+    // Write a pixel
+    loop {
+        client.write_pixel(
+            range.ind_sample(&mut rng),
+            range.ind_sample(&mut rng),
+            &Color::from(255, 0, 0)
+        );
+    }
 }
 
 /// Create a stream to talk to the pixelflut server.
@@ -27,19 +40,35 @@ fn create_stream() -> Result<TcpStream, Error> {
     TcpStream::connect(HOST)
 }
 
-/// Write a pixel to the given stream.
-fn write_pixel(stream: &mut TcpStream, x: u16, y: u16, color: &Color) {
-    // Write the command to set a pixel
-    write_command(
-        stream,
-        format!("PX {} {} {}", x, y, color.as_hex()),
-    )
+
+
+
+/// A pixelflut client.
+struct PixClient {
+    stream: TcpStream,
 }
 
-/// Write the given command to the given stream.
-fn write_command(stream: &mut TcpStream, cmd: String) {
-    stream.write(cmd.as_bytes());
-    stream.write("\n".as_bytes());
+impl PixClient {
+    /// Create a new client instance.
+    pub fn new(stream: TcpStream) -> PixClient {
+        PixClient {
+            stream,
+        }
+    }
+
+    /// Write a pixel to the given stream.
+    fn write_pixel(&mut self, x: u16, y: u16, color: &Color) {
+        // Write the command to set a pixel
+        self.write_command(
+            format!("PX {} {} {}", x, y, color.as_hex()),
+        )
+    }
+
+    /// Write the given command to the given stream.
+    fn write_command(&mut self, cmd: String) {
+        self.stream.write(cmd.as_bytes());
+        self.stream.write("\n".as_bytes());
+    }
 }
 
 
@@ -64,6 +93,6 @@ impl Color {
 
     /// Convert the color to a hexadecimal representation.
     pub fn as_hex(&self) -> String {
-        format!("{:X}{:X}{:X}", self.r, self.g, self.b)
+        format!("{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
 }
