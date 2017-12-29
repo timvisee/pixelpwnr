@@ -1,5 +1,5 @@
 [package]
-name = "pixelpwn"
+name = "pixelpwnr"
 version = "0.1.0"
 authors = ["Tim Visée <timvisee@gmail.com>"]
 
