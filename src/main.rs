@@ -18,10 +18,14 @@ use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
 
 // The target host
 // const HOST: &'static str = "127.0.0.1:8080";
-const HOST: &'static str = "151.217.38.83:1234";
+// const HOST: &'static str = "151.217.38.83:1234";
+const HOST: &'static str = "151.217.47.77:8080";
+
+// The number of painter threads to spawn
+const THREAD_COUNT: usize = 15;
 
 // The default size of the command output read buffer
-const CMD_READ_BUFFER_SIZE: usize = 32;
+const CMD_READ_BUFFER_SIZE: usize = 16;
 
 
 
@@ -38,7 +42,7 @@ fn main() {
     let image_path = "/root/image.jpg";
 
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(HOST, image_path, size, 32);
+    let canvas = PixCanvas::new(HOST, image_path, size, THREAD_COUNT);
 
 	// Sleep this thread
 	thread::sleep(Duration::new(10000000, 0));
