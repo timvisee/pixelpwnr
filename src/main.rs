@@ -23,6 +23,13 @@ use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
 // const HOST: &'static str = "151.217.38.83:1234";
 // const HOST: &'static str = "151.217.47.77:8080";
 
+// The default thread count
+const DEFAULT_THREAD_COUNT: usize = 4;
+
+// The default image width and height
+const DEFAULT_WIDTH: u32 = 1920;
+const DEFAULT_HEIGHT: u32 = 1080;
+
 // The default size of the command output read buffer
 const CMD_READ_BUFFER_SIZE: usize = 16;
 
@@ -34,19 +41,15 @@ fn main() {
 		.version("0.1")
 		.author("Tim Visee <timvisee@gmail.com>")
 		.about("Pwns pixelflut")
-		.arg(Arg::with_name("host")
-			.short("h")
-			.long("host")
-			.value_name("HOST")
+		.arg(Arg::with_name("HOST")
 			.help("The host to pwn \"host:port\"")
             .required(true)
-			.takes_value(true))
+            .index(1))
 		.arg(Arg::with_name("count")
 			.short("c")
 			.long("count")
 			.value_name("COUNT")
 			.help("Number of simultanious  threads")
-            .required(true)
 			.takes_value(true))
 		.arg(Arg::with_name("image")
 			.short("i")
@@ -55,17 +58,41 @@ fn main() {
 			.help("Path of the image to print")
             .required(true)
 			.takes_value(true))
+		.arg(Arg::with_name("width")
+			.short("w")
+			.long("width")
+			.value_name("PIXELS")
+			.help("Drawing width in pixels")
+			.takes_value(true))
+		.arg(Arg::with_name("height")
+			.short("h")
+			.long("height")
+			.value_name("PIXELS")
+			.help("Drawing height in pixels")
+			.takes_value(true))
+		.arg(Arg::with_name("x")
+			.short("x")
+			.long("x")
+			.value_name("PIXELS")
+			.help("Drawing X offset in pixels")
+			.takes_value(true))
+		.arg(Arg::with_name("y")
+			.short("y")
+			.long("y")
+			.value_name("PIXELS")
+			.help("Drawing Y offset in pixels")
+			.takes_value(true))
 		.get_matches();
 
     // Get the host
     let host = matches
-        .value_of("host")
+        .value_of("HOST")
         .expect("Please specify a host");
 
     // Get the count
     let count = matches
         .value_of("count")
-        .expect("Please specify a count")
+        .unwrap_or(&format!("{}", DEFAULT_THREAD_COUNT))
         .parse::<usize>()
         .expect("Invalid count specified");
 
@@ -74,21 +101,53 @@ fn main() {
         .value_of("image")
         .expect("Please specify an image path");
 
+    // Get the width and height
+    let width = matches
+        .value_of("width")
+        .unwrap_or(&format!("{}", DEFAULT_WIDTH))
+        .parse::<u32>()
+        .expect("Invalid image width");
+    let height = matches
+        .value_of("height")
+        .unwrap_or(&format!("{}", DEFAULT_HEIGHT))
+        .parse::<u32>()
+        .expect("Invalid image height");
+
+    // Get the offset
+    let offset_x = matches
+        .value_of("x")
+        .unwrap_or("0")
+        .parse::<u32>()
+        .expect("Invalid X offset");
+    let offset_y = matches
+        .value_of("y")
+        .unwrap_or("0")
+        .parse::<u32>()
+        .expect("Invalid Y offset");
+
     // Start
-    start(host, count, image_path);
+    start(
+        host,
+        image_path, 
+        count,
+        (width, height),
+        (offset_x, offset_y)
+    );
 }
 
 /// Start the client.
-fn start(host: &str, count: usize, image_path: &str) {
+fn start(
+    host: &str,
+    image_path: &str,
+    count: usize,
+    size: (u32, u32),
+    offset: (u32, u32)
+) {
     // Start
     println!("Starting...");
 
-    // Define the size to use
-    // TODO: get the size from the screen
-    let size = (1920u32, 1080u32);
-
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(host, image_path, size, count);
+    let canvas = PixCanvas::new(host, image_path, count, size, offset);
 
 	// Sleep this thread
 	thread::sleep(Duration::new(10000000, 0));
@@ -129,25 +188,33 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
 /// A pixflut instance 
 struct PixCanvas {
     host: String,
-    size: (u32, u32),
 	painter_count: usize,
     painters: Vec<JoinHandle<u32>>,
     image: DynamicImage,
+    size: (u32, u32),
+    offset: (u32, u32),
 }
 
 impl PixCanvas {
     /// Create a new pixelflut canvas.
-    pub fn new(host: &str, image_path: &str, size: (u32, u32), painter_count: usize) -> PixCanvas {
+    pub fn new(
+        host: &str,
+        image_path: &str,
+        painter_count: usize,
+        size: (u32, u32),
+        offset: (u32, u32),
+    ) -> PixCanvas {
 		// Load the image
 		let image = load_image(image_path, &size);
 
         // Initialize the object
         let mut canvas = PixCanvas {
             host: host.to_string(),
-            size,
 			painter_count,
             painters: Vec::with_capacity(painter_count),
             image,
+            size,
+            offset,
         };
 
 		// Show a status message
@@ -193,6 +260,9 @@ impl PixCanvas {
             area.h
         );
 
+        // Redefine the offset to make it usable in the thread
+        let offset = (self.offset.0, self.offset.1);
+
         // Create the painter thread
         let thread = thread::spawn(move || {
             // Create a new stream
@@ -203,7 +273,7 @@ impl PixCanvas {
             let client = PixClient::new(stream);
 
             // Create a painter
-            let mut painter = Painter::new(client, area, image);
+            let mut painter = Painter::new(client, area, offset, image);
 
             // Do some work
             loop {
@@ -221,15 +291,17 @@ impl PixCanvas {
 struct Painter {
     client: PixClient,
     area: Rect,
+    offset: (u32, u32),
     image: DynamicImage,
 }
 
 impl Painter {
     /// Create a new painter.
-    pub fn new(client: PixClient, area: Rect, image: DynamicImage) -> Painter {
+    pub fn new(client: PixClient, area: Rect, offset: (u32, u32), image: DynamicImage) -> Painter {
         Painter {
             client,
             area,
+            offset,
             image,
         }
     }
@@ -258,8 +330,8 @@ impl Painter {
 
                 // Set the pixel
                 self.client.write_pixel(
-                    x + self.area.x,
-                    y + self.area.y,
+                    x + self.area.x + self.offset.0,
+                    y + self.area.y + self.offset.1,
                     &color,
                 );
             }
