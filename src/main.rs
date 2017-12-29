@@ -118,11 +118,14 @@ impl PixCanvas {
     fn spawn_painters(&mut self) {
         // Spawn some painters
         for i in 0..self.painter_count {
+			// Determine the slice width
+			let width = (self.size.0 / (self.painter_count as u32));
+
 			// Define the area to paint per thread
 			let painter_area = Rect::from(
-				i as u32 * (self.size.0 / self.painter_count as u32),
+				(i as u32) * width,
 				0,
-				self.size.0,
+				width,
 				self.size.1,
 			);
 
