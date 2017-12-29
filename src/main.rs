@@ -11,12 +11,13 @@ use std::thread;
 use std::thread::JoinHandle;
 
 use bufstream::BufStream;
-use image::{GenericImage, DynamicImage, FilterType};
+use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
 
 
 
 // The target host
 const HOST: &'static str = "127.0.0.1:8080";
+// const HOST: &'static str = "151.217.38.83:1234";
 
 // The default size of the command output read buffer
 const CMD_READ_BUFFER_SIZE: usize = 32;
@@ -29,7 +30,7 @@ fn main() {
 
     // Define the size to use
     // TODO: get the size from the screen
-    let size = (1000u32, 1000u32);
+    let size = (1920u32, 1080u32);
 
     // Define the image to use
     // TODO: get the image path from the CLI
@@ -168,7 +169,7 @@ impl Painter {
         let image = self.image.to_rgb();
 
         // Define the color to draw with
-        let color = Color::from(0, 155, 0);
+        let color = Color::from(0, 255, 255);
 
         // Loop through all the pixels, and set their color
         for x in 0..self.area.w {
@@ -176,7 +177,15 @@ impl Painter {
                 // Get the pixel at this location
                 let pixel = image.get_pixel(x, y);
 
-                pixel.channels();
+				// Get the channels
+				let channels = pixel.channels();
+
+				// Define the color
+				let color = Color::from(
+					channels[0],
+					channels[1],
+					channels[2],
+				);
 
                 // Set the pixel
                 self.client.write_pixel(
@@ -252,14 +261,14 @@ impl PixClient {
 /// Color structure.
 #[derive(Copy, Clone)]
 struct Color {
-    r: u32,
-    g: u32,
-    b: u32,
+    r: u8,
+    g: u8,
+    b: u8,
 }
 
 impl Color {
     /// Create a new color instance
-    pub fn from(r: u32, g: u32, b: u32) -> Color {
+    pub fn from(r: u8, g: u8, b: u8) -> Color {
         Color {
             r,
             g,
