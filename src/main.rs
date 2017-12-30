@@ -173,7 +173,7 @@ fn start(
 
     // Create a new pixelflut canvas
     // TODO: Remove this image path here, fully move it to the manager
-    let mut canvas = PixCanvas::new(host, image_paths[0], count, size, offset);
+    let mut canvas = PixCanvas::new(host, count, size, offset);
 
     // Load the image manager
     let mut image_manager = ImageManager::load(image_paths, &size);
@@ -210,11 +210,7 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
     }
 
     // Load the image
-    println!("Loading image...");
     let image = image::open(&path).unwrap();
-
-    // Start processing the image for the screen
-    println!("Processing image...");
 
     // Resize the image to fit the screen
     image.resize_exact(
@@ -243,12 +239,20 @@ impl ImageManager {
 
     /// Instantiate the image manager, and load the images from the given paths.
     pub fn load(paths: Vec<&str>, size: &(u32, u32)) -> ImageManager {
+        // Show a status message
+        println!("Load and process {} image(s)...", paths.len());
+
         // Load the images from the paths
-        ImageManager::from(
+        let image_manager = ImageManager::from(
             paths.iter()
                 .map(|path| load_image(path, &size))
                 .collect()
-        )
+        );
+
+        // We succeeded
+        println!("All images have been loaded successfully");
+
+        image_manager
     }
 
     /// Tick the image 
@@ -279,7 +283,6 @@ struct PixCanvas {
 	painter_count: usize,
     painters: Vec<JoinHandle<u32>>,
     painter_handles: Vec<PainterHandle>,
-    image: DynamicImage,
     size: (u32, u32),
     offset: (u32, u32),
 }
@@ -288,21 +291,16 @@ impl PixCanvas {
     /// Create a new pixelflut canvas.
     pub fn new(
         host: &str,
-        image_path: &str,
         painter_count: usize,
         size: (u32, u32),
         offset: (u32, u32),
     ) -> PixCanvas {
-		// Load the image
-		let image = load_image(image_path, &size);
-
         // Initialize the object
         let mut canvas = PixCanvas {
             host: host.to_string(),
 			painter_count,
             painters: Vec::with_capacity(painter_count),
             painter_handles: Vec::with_capacity(painter_count),
-            image,
             size,
             offset,
         };
@@ -342,19 +340,12 @@ impl PixCanvas {
         // Get the host that will be used
         let host = self.host.to_string();
 
-        // Get the part of the image to draw by this painter
-        let image = self.image.crop(
-            area.x,
-            area.y,
-            area.w,
-            area.h,
-        );
-
         // Redefine the offset to make it usable in the thread
         let offset = (self.offset.0, self.offset.1);
 
         // Create a channel to push new images
-        let (tx, rx): (Sender<DynamicImage>, Receiver<DynamicImage>) = mpsc::channel();
+        let (tx, rx): (Sender<DynamicImage>, Receiver<DynamicImage>)
+            = mpsc::channel();
 
         // Create the painter thread
         let thread = thread::spawn(move || {
@@ -366,7 +357,12 @@ impl PixCanvas {
             let client = PixClient::new(stream);
 
             // Create a painter
-            let mut painter = Painter::new(client, area, offset, Some(image));
+            let mut painter = Painter::new(
+                client,
+                area,
+                offset,
+                None
+            );
 
             // Do some work
             loop {
