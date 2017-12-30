@@ -12,6 +12,8 @@ use pix::canvas::Canvas;
 /// A manager that manages all images to print.
 pub struct ImageManager {
     images: Vec<DynamicImage>,
+    // Define whether the first image has been drawn
+    first: bool,
     index: isize,
 }
 
@@ -20,6 +22,7 @@ impl ImageManager {
     pub fn from(images: Vec<DynamicImage>) -> ImageManager {
         ImageManager {
             images,
+            first: false,
             index: 0,
         }
     }
@@ -47,6 +50,11 @@ impl ImageManager {
         // Get the image index bound
         let bound = self.images.len();
 
+        // Just return if the bound is one, as nothing should be updated
+        if self.first && bound == 1 {
+            return;
+        }
+
         // Get the image to use
         let image = &mut self.images[
             self.index as usize % bound
@@ -57,6 +65,9 @@ impl ImageManager {
 
         // Increase the index
         self.index += 1;
+
+        // We have rendered the first image
+        self.first = true;
     }
 
     /// Start working in the image manager.
