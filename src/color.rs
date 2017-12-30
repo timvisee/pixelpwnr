@@ -1,6 +1,13 @@
 /// Color struct.
 ///
 /// Represents a color with RGB values from 0 to 255.
+#[derive(Copy, Clone)]
+pub struct Color {
+    r: u8,
+    g: u8,
+    b: u8,
+}
+
 impl Color {
 
     /// Constructor.

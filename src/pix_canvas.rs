@@ -1,0 +1,140 @@
+use std::io::Error;
+use std::net::TcpStream;
+use std::sync::mpsc;
+use std::sync::mpsc::{Sender, Receiver};
+use std::thread;
+
+use image::DynamicImage;
+
+use painter::Painter;
+use painter_handle::PainterHandle;
+use pix_client::PixClient;
+use rect::Rect;
+
+
+
+/// A pixflut instance 
+pub struct PixCanvas {
+    host: String,
+	painter_count: usize,
+    painter_handles: Vec<PainterHandle>,
+    size: (u32, u32),
+    offset: (u32, u32),
+}
+
+impl PixCanvas {
+    /// Create a new pixelflut canvas.
+    pub fn new(
+        host: &str,
+        painter_count: usize,
+        size: (u32, u32),
+        offset: (u32, u32),
+    ) -> PixCanvas {
+        // Initialize the object
+        let mut canvas = PixCanvas {
+            host: host.to_string(),
+			painter_count,
+            painter_handles: Vec::with_capacity(painter_count),
+            size,
+            offset,
+        };
+
+		// Show a status message
+		println!("Starting painter threads...");
+
+        // Spawn some painters
+        canvas.spawn_painters();
+
+        // Return the canvas
+        canvas
+    }
+
+    /// Spawn the painters for this canvas
+    fn spawn_painters(&mut self) {
+        // Spawn some painters
+        for i in 0..self.painter_count {
+			// Determine the slice width
+			let width = self.size.0 / (self.painter_count as u32);
+
+			// Define the area to paint per thread
+			let painter_area = Rect::from(
+				(i as u32) * width,
+				0,
+				width,
+				self.size.1,
+			);
+
+			// Spawn the painter
+            self.spawn_painter(painter_area);
+        }
+    }
+
+    /// Spawn a single painter in a thread.
+    fn spawn_painter(&mut self, area: Rect) {
+        // Get the host that will be used
+        let host = self.host.to_string();
+
+        // Redefine the offset to make it usable in the thread
+        let offset = (self.offset.0, self.offset.1);
+
+        // Create a channel to push new images
+        let (tx, rx): (Sender<DynamicImage>, Receiver<DynamicImage>)
+            = mpsc::channel();
+
+        // Create the painter thread
+        let thread = thread::spawn(move || {
+            // Create a new stream
+            let stream = create_stream(host)
+                .expect("failed to open stream to pixelflut");
+
+            // Create a new client
+            let client = PixClient::new(stream);
+
+            // Create a painter
+            let mut painter = Painter::new(
+                client,
+                area,
+                offset,
+                None
+            );
+
+            // Do some work
+            loop {
+                // Work
+                painter.work()
+                    .expect("Painter failed to perform work");
+
+                // Update the image to paint
+                if let Ok(image) = rx.try_recv() {
+                    painter.set_image(image);
+                }
+            }
+        });
+
+        // Create a new painter handle, pust it to the list
+        self.painter_handles.push(
+            PainterHandle::new(
+                thread,
+                area,
+                tx,
+            )
+        );
+    }
+
+    // Update the image that is being rendered for all painters.
+    pub fn update_image(&mut self, image: &mut DynamicImage) {
+        // Update the image for each specific painter handle
+        for handle in &self.painter_handles {
+            handle.update_image(image);
+        }
+    }
+}
+
+
+
+/// Create a stream to talk to the pixelflut server.
+///
+/// The stream is returned as result.
+fn create_stream(host: String) -> Result<TcpStream, Error> {
+    TcpStream::connect(host)
+}
