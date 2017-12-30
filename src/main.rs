@@ -51,9 +51,10 @@ fn main() {
         .expect("Invalid count specified");
 
     // Get the image path
-    let image_path = matches
-        .value_of("image")
-        .expect("Please specify an image path");
+    let image_paths = matches
+        .values_of("image")
+        .expect("Please specify an image paths")
+        .collect();
 
     // Get the width and height
     let width = matches
@@ -82,7 +83,7 @@ fn main() {
     // Start
     start(
         host,
-        image_path, 
+        image_paths,
         count,
         (width, height),
         (offset_x, offset_y)
@@ -108,10 +109,11 @@ fn parse_args<'a>() -> ArgMatches<'a> {
 			.takes_value(true))
 		.arg(Arg::with_name("image")
 			.short("i")
-			.long("image")
+			.long("images")
 			.value_name("PATH")
-			.help("Path of the image to print")
+			.help("Paths of the images to print")
             .required(true)
+            .multiple(true)
 			.takes_value(true))
 		.arg(Arg::with_name("width")
 			.short("w")
@@ -143,7 +145,7 @@ fn parse_args<'a>() -> ArgMatches<'a> {
 /// Start the client.
 fn start(
     host: &str,
-    image_path: &str,
+    image_paths: Vec<&str>,
     count: usize,
     size: (u32, u32),
     offset: (u32, u32)
@@ -152,13 +154,20 @@ fn start(
     println!("Starting...");
 
     // Create a new pixelflut canvas
-    PixCanvas::new(host, image_path, count, size, offset);
+    // TODO: Remove this image path here, fully move it to the manager
+    let mut canvas = PixCanvas::new(host, image_paths[0], count, size, offset);
 
     // Load the image manager
-    let image_manager = ImageManager::load(vec![image_path], &size);
+    let mut image_manager = ImageManager::load(image_paths, &size);
 
-	// Sleep this thread
-	thread::sleep(Duration::new(99999999, 0));
+    // Animate images
+    loop {
+        // Tick to use the next image
+        image_manager.tick(&mut canvas);
+
+        // Sleep until we need to show the next image
+        thread::sleep(Duration::new(1, 0));
+    }
 }
 
 /// Create a stream to talk to the pixelflut server.
@@ -198,6 +207,7 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
 /// A manager that manages all images to print.
 struct ImageManager {
     images: Vec<DynamicImage>,
+    index: isize,
 }
 
 impl ImageManager {
@@ -205,6 +215,7 @@ impl ImageManager {
     pub fn from(images: Vec<DynamicImage>) -> ImageManager {
         ImageManager {
             images,
+            index: 0,
         }
     }
 
@@ -216,6 +227,25 @@ impl ImageManager {
                 .map(|path| load_image(path, &size))
                 .collect()
         )
+    }
+
+    /// Tick the image 
+    pub fn tick(&mut self, canvas: &mut PixCanvas) {
+        // Get the image index bound
+        let bound = self.images.len();
+
+        // Get the image to use
+        let image = &mut self.images[
+            self.index as usize % bound
+        ];
+
+        // Push the image to all painter threads
+        for handle in canvas.painter_handles() {
+            handle.update_image(image);
+        }
+
+        // Increase the index
+        self.index += 1;
     }
 }
 
@@ -345,6 +375,11 @@ impl PixCanvas {
         for handle in &self.painter_handles {
             handle.update_image(image);
         }
+    }
+
+    /// Borrow the painter handles vector.
+    pub fn painter_handles(&mut self) -> &Vec<PainterHandle> {
+        &self.painter_handles
     }
 }
 
