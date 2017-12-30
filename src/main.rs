@@ -2,6 +2,8 @@ extern crate bufstream;
 extern crate clap;
 extern crate image;
 
+mod app;
+
 use std::io::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
@@ -16,23 +18,7 @@ use bufstream::BufStream;
 use clap::{Arg, ArgMatches, App};
 use image::{DynamicImage, FilterType, Pixel};
 
-
-
-// The default thread count
-const DEFAULT_THREAD_COUNT: usize = 4;
-
-// The default image width and height
-const DEFAULT_IMAGE_WIDTH: u32 = 1920;
-const DEFAULT_IMAGE_HEIGHT: u32 = 1080;
-
-// The default frames per second rate
-const DEFAULT_IMAGE_FPS: u32 = 1;
-
-// The amount of milliseconds to wait for an image, when a painter has no image.
-const PAINTER_IMAGE_WAIT_DELAY_MILLIS: u64 = 100;
-
-// The default size of the command output read buffer
-// const CMD_READ_BUFFER_SIZE: usize = 16;
+use app::*;
 
 
 
@@ -104,10 +90,10 @@ fn main() {
 /// Parse CLI arguments, return the matches.
 fn parse_args<'a>() -> ArgMatches<'a> {
     // Handle/parse arguments
-	App::new("pixelpwnr")
-		.version("0.1")
-		.author("Tim Visee <timvisee@gmail.com>")
-		.about("Pwns pixelflut")
+	App::new(APP_NAME)
+		.version(APP_VERSION)
+		.author(APP_AUTHOR)
+		.about(APP_ABOUT)
 		.arg(Arg::with_name("HOST")
 			.help("The host to pwn \"host:port\"")
             .required(true)
