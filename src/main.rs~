@@ -336,7 +336,7 @@ impl PainterHandle {
     }
 
     /// Push an image update.
-    pub fn update_image(&self, full_image: &mut DynamicImage) {
+    pub fn update_image(&self, &mut full_image: DynamicImage) {
         // Crop the image to the area
         let image = full_image.crop(
             self.area.x,
