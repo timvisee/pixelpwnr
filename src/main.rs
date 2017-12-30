@@ -2,8 +2,6 @@ extern crate bufstream;
 extern crate clap;
 extern crate image;
 
-use std::env;
-use std::fs::File;
 use std::io::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
@@ -13,15 +11,10 @@ use std::thread::JoinHandle;
 use std::time::Duration;
 
 use bufstream::BufStream;
-use clap::{Arg, App, SubCommand};
-use image::{GenericImage, DynamicImage, FilterType, Pixel, Primitive};
+use clap::{Arg, App};
+use image::{DynamicImage, FilterType, Pixel};
 
 
-
-// The target host
-// const HOST: &'static str = "127.0.0.1:8080";
-// const HOST: &'static str = "151.217.38.83:1234";
-// const HOST: &'static str = "151.217.47.77:8080";
 
 // The default thread count
 const DEFAULT_THREAD_COUNT: usize = 4;
@@ -31,7 +24,7 @@ const DEFAULT_WIDTH: u32 = 1920;
 const DEFAULT_HEIGHT: u32 = 1080;
 
 // The default size of the command output read buffer
-const CMD_READ_BUFFER_SIZE: usize = 16;
+// const CMD_READ_BUFFER_SIZE: usize = 16;
 
 
 
@@ -147,16 +140,15 @@ fn start(
     println!("Starting...");
 
     // Create a new pixelflut canvas
-    let canvas = PixCanvas::new(host, image_path, count, size, offset);
+    PixCanvas::new(host, image_path, count, size, offset);
 
 	// Sleep this thread
-	thread::sleep(Duration::new(10000000, 0));
+	thread::sleep(Duration::new(99999999, 0));
 }
 
 /// Create a stream to talk to the pixelflut server.
 ///
 /// The stream is returned as result.
-// TODO: Specify a host here!
 fn create_stream(host: String) -> Result<TcpStream, Error> {
     TcpStream::connect(host)
 }
@@ -232,7 +224,7 @@ impl PixCanvas {
         // Spawn some painters
         for i in 0..self.painter_count {
 			// Determine the slice width
-			let width = (self.size.0 / (self.painter_count as u32));
+			let width = self.size.0 / (self.painter_count as u32);
 
 			// Define the area to paint per thread
 			let painter_area = Rect::from(
@@ -277,7 +269,7 @@ impl PixCanvas {
 
             // Do some work
             loop {
-                painter.work();
+                painter.work().expect("Painter failed to perform work");
             }
         });
 
@@ -308,7 +300,7 @@ impl Painter {
 
     /// Perform work.
     /// Paint the whole defined area.
-    pub fn work(&mut self) {
+    pub fn work(&mut self) -> Result<(), Error> {
         // Get an RGB image
         let image = self.image.to_rgb();
 
@@ -333,9 +325,12 @@ impl Painter {
                     x + self.area.x + self.offset.0,
                     y + self.area.y + self.offset.1,
                     &color,
-                );
+                )?;
             }
         }
+
+        // Everything seems to be ok
+        Ok(())
     }
 }
 
@@ -357,7 +352,7 @@ impl PixClient {
     }
 
     /// Write a pixel to the given stream.
-    fn write_pixel(&mut self, x: u32, y: u32, color: &Color) {
+    fn write_pixel(&mut self, x: u32, y: u32, color: &Color) -> Result<(), Error> {
         // Write the command to set a pixel
         self.write_command(
             format!("PX {} {} {}", x, y, color.as_hex()),
@@ -376,9 +371,13 @@ impl PixClient {
     // }
 
     /// Write the given command to the given stream.
-    fn write_command(&mut self, cmd: String) {
-        self.stream.write(cmd.as_bytes());
-        self.stream.write("\n".as_bytes());
+    fn write_command(&mut self, cmd: String) -> Result<(), Error> {
+        // Write the pixels and a new line
+        self.stream.write(cmd.as_bytes())?;
+        self.stream.write("\n".as_bytes())?;
+
+        // Everything seems to be ok
+        Ok(())
     }
 
     // /// Write the given command to the given stream, and read the output.
