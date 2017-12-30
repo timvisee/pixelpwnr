@@ -20,17 +20,73 @@ use image::{DynamicImage, FilterType, Pixel};
 const DEFAULT_THREAD_COUNT: usize = 4;
 
 // The default image width and height
-const DEFAULT_WIDTH: u32 = 1920;
-const DEFAULT_HEIGHT: u32 = 1080;
+const DEFAULT_IMAGE_WIDTH: u32 = 1920;
+const DEFAULT_IMAGE_HEIGHT: u32 = 1080;
 
 // The default size of the command output read buffer
 // const CMD_READ_BUFFER_SIZE: usize = 16;
 
 
 
+/// Main application entrypoint.
 fn main() {
-    // Handle arguments
-	let matches = App::new("pixelpwnr")
+    // Parse CLI arguments
+
+    // Get the host
+    let host = matches
+        .value_of("HOST")
+        .expect("Please specify a host");
+
+    // Get the count
+    let count = matches
+        .value_of("count")
+        .unwrap_or(&format!("{}", DEFAULT_THREAD_COUNT))
+        .parse::<usize>()
+        .expect("Invalid count specified");
+
+    // Get the image path
+    let image_path = matches
+        .value_of("image")
+        .expect("Please specify an image path");
+
+    // Get the width and height
+    let width = matches
+        .value_of("width")
+        .unwrap_or(&format!("{}", DEFAULT_IMAGE_WIDTH))
+        .parse::<u32>()
+        .expect("Invalid image width");
+    let height = matches
+        .value_of("height")
+        .unwrap_or(&format!("{}", DEFAULT_IMAGE_HEIGHT))
+        .parse::<u32>()
+        .expect("Invalid image height");
+
+    // Get the offset
+    let offset_x = matches
+        .value_of("x")
+        .unwrap_or("0")
+        .parse::<u32>()
+        .expect("Invalid X offset");
+    let offset_y = matches
+        .value_of("y")
+        .unwrap_or("0")
+        .parse::<u32>()
+        .expect("Invalid Y offset");
+
+    // Start
+    start(
+        host,
+        image_path, 
+        count,
+        (width, height),
+        (offset_x, offset_y)
+    );
+}
+
+/// Parse CLI arguments, return the matches.
+fn parse_args() {
+    // Handle/parse arguments
+	App::new("pixelpwnr")
 		.version("0.1")
 		.author("Tim Visee <timvisee@gmail.com>")
 		.about("Pwns pixelflut")
@@ -75,57 +131,7 @@ fn main() {
 			.value_name("PIXELS")
 			.help("Drawing Y offset in pixels (def: 0)")
 			.takes_value(true))
-		.get_matches();
-
-    // Get the host
-    let host = matches
-        .value_of("HOST")
-        .expect("Please specify a host");
-
-    // Get the count
-    let count = matches
-        .value_of("count")
-        .unwrap_or(&format!("{}", DEFAULT_THREAD_COUNT))
-        .parse::<usize>()
-        .expect("Invalid count specified");
-
-    // Get the image path
-    let image_path = matches
-        .value_of("image")
-        .expect("Please specify an image path");
-
-    // Get the width and height
-    let width = matches
-        .value_of("width")
-        .unwrap_or(&format!("{}", DEFAULT_WIDTH))
-        .parse::<u32>()
-        .expect("Invalid image width");
-    let height = matches
-        .value_of("height")
-        .unwrap_or(&format!("{}", DEFAULT_HEIGHT))
-        .parse::<u32>()
-        .expect("Invalid image height");
-
-    // Get the offset
-    let offset_x = matches
-        .value_of("x")
-        .unwrap_or("0")
-        .parse::<u32>()
-        .expect("Invalid X offset");
-    let offset_y = matches
-        .value_of("y")
-        .unwrap_or("0")
-        .parse::<u32>()
-        .expect("Invalid Y offset");
-
-    // Start
-    start(
-        host,
-        image_path, 
-        count,
-        (width, height),
-        (offset_x, offset_y)
-    );
+		.get_matches()
 }
 
 /// Start the client.
