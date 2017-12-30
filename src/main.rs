@@ -25,6 +25,9 @@ const DEFAULT_THREAD_COUNT: usize = 4;
 const DEFAULT_IMAGE_WIDTH: u32 = 1920;
 const DEFAULT_IMAGE_HEIGHT: u32 = 1080;
 
+// The amount of milliseconds to wait for an image, when a painter has no image.
+const PAINTER_IMAGE_WAIT_DELAY_MILLIS: u64 = 100;
+
 // The default size of the command output read buffer
 // const CMD_READ_BUFFER_SIZE: usize = 16;
 
@@ -311,7 +314,7 @@ impl PixCanvas {
             let client = PixClient::new(stream);
 
             // Create a painter
-            let mut painter = Painter::new(client, area, offset, image);
+            let mut painter = Painter::new(client, area, offset, Some(image));
 
             // Do some work
             loop {
@@ -387,12 +390,12 @@ struct Painter {
     client: PixClient,
     area: Rect,
     offset: (u32, u32),
-    image: DynamicImage,
+    image: Option<DynamicImage>,
 }
 
 impl Painter {
     /// Create a new painter.
-    pub fn new(client: PixClient, area: Rect, offset: (u32, u32), image: DynamicImage) -> Painter {
+    pub fn new(client: PixClient, area: Rect, offset: (u32, u32), image: Option<DynamicImage>) -> Painter {
         Painter {
             client,
             area,
@@ -404,8 +407,18 @@ impl Painter {
     /// Perform work.
     /// Paint the whole defined area.
     pub fn work(&mut self) -> Result<(), Error> {
+        // Make sure there is an image
+        if self.image.is_none() {
+            // Show a warning
+            println!("Painter thread has no image yet to paint, waiting...");
+
+            // Sleep a little
+            thread::sleep(Duration::from_millis(PAINTER_IMAGE_WAIT_DELAY_MILLIS));
+            return Ok(());
+        }
+
         // Get an RGB image
-        let image = self.image.to_rgb();
+        let image = self.image.as_mut().unwrap().to_rgb();
 
         // Loop through all the pixels, and set their color
         for x in 0..self.area.w {
@@ -438,7 +451,7 @@ impl Painter {
 
     /// Update the image that should be painted
     pub fn set_image(&mut self, image: DynamicImage) {
-        self.image = image;
+        self.image = Some(image);
     }
 }
 
