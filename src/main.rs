@@ -164,7 +164,10 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
     // Create a path instance
     let path = Path::new(&path);
 
-    // TODO: make sure the path exists.
+    // Check whether the path exists
+    if !path.is_file(path) {
+        panic!("The given path does not exist or is not a file");
+    }
 
     // Load the image
     println!("Loading image...");
@@ -371,7 +374,7 @@ impl PixClient {
     //     let size = self
     //         .write_read_command("SIZE".into())
     //         .expect("Failed to read screen size");
-
+    //
     //     // TODO: Remove this after debugging
     //     println!("Read size: {}", size);
     // }
@@ -390,13 +393,13 @@ impl PixClient {
     // fn write_read_command(&mut self, cmd: String) -> Result<String, Error> {
     //     // Write the command
     //     self.write_command(cmd);
-
+    //
     //     // Read the output
     //     let mut buffer = String::with_capacity(CMD_READ_BUFFER_SIZE);
     //     println!("Reading line...");
     //     self.stream.read_line(&mut buffer)?;
     //     println!("Done reading");
-
+    //
     //     // Return the read string
     //     Ok(buffer)
     // }
