@@ -172,7 +172,6 @@ fn start(
     println!("Starting...");
 
     // Create a new pixelflut canvas
-    // TODO: Remove this image path here, fully move it to the manager
     let mut canvas = PixCanvas::new(host, count, size, offset);
 
     // Load the image manager
@@ -279,7 +278,6 @@ impl ImageManager {
 struct PixCanvas {
     host: String,
 	painter_count: usize,
-    painters: Vec<JoinHandle<u32>>,
     painter_handles: Vec<PainterHandle>,
     size: (u32, u32),
     offset: (u32, u32),
@@ -297,7 +295,6 @@ impl PixCanvas {
         let mut canvas = PixCanvas {
             host: host.to_string(),
 			painter_count,
-            painters: Vec::with_capacity(painter_count),
             painter_handles: Vec::with_capacity(painter_count),
             size,
             offset,
@@ -392,17 +389,13 @@ impl PixCanvas {
             handle.update_image(image);
         }
     }
-
-    /// Borrow the painter handles vector.
-    pub fn painter_handles(&mut self) -> &Vec<PainterHandle> {
-        &self.painter_handles
-    }
 }
 
 
 
 /// A handle for a painter thread.
 struct PainterHandle {
+    #[allow(dead_code)]
     thread: JoinHandle<u32>,
     area: Rect,
     image_sender: Sender<DynamicImage>,
