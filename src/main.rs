@@ -3,6 +3,8 @@ extern crate clap;
 extern crate image;
 
 mod app;
+mod color;
+mod rect;
 
 use std::io::Error;
 use std::io::prelude::*;
@@ -19,6 +21,8 @@ use clap::{Arg, ArgMatches, App};
 use image::{DynamicImage, FilterType, Pixel};
 
 use app::*;
+use color::Color;
+use rect::Rect;
 
 
 
@@ -545,54 +549,4 @@ impl PixClient {
     //     // Return the read string
     //     Ok(buffer)
     // }
-}
-
-
-
-/// Color structure.
-#[derive(Copy, Clone)]
-struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
-}
-
-impl Color {
-    /// Create a new color instance
-    pub fn from(r: u8, g: u8, b: u8) -> Color {
-        Color {
-            r,
-            g,
-            b,
-        }
-    }
-
-    /// Get a hexadecimal representation of the color,
-    /// such as `FFFFFF` for white and `FF0000` for red.
-    pub fn as_hex(&self) -> String {
-        format!("{:02X}{:02X}{:02X}", self.r, self.g, self.b)
-    }
-}
-
-
-
-/// Rectangle struct.
-#[derive(Copy, Clone)]
-pub struct Rect {
-    // TODO: Make these properties private
-    pub x: u32,
-    pub y: u32,
-    pub w: u32,
-    pub h: u32,
-}
-
-impl Rect {
-    pub fn from(x: u32, y: u32, w: u32, h: u32) -> Rect {
-        Rect {
-            x,
-            y,
-            w,
-            h,
-        }
-    }
 }
