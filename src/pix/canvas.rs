@@ -8,13 +8,13 @@ use image::DynamicImage;
 
 use painter::Painter;
 use painter_handle::PainterHandle;
-use pix_client::PixClient;
+use pix::client::Client;
 use rect::Rect;
 
 
 
 /// A pixflut instance 
-pub struct PixCanvas {
+pub struct Canvas {
     host: String,
 	painter_count: usize,
     painter_handles: Vec<PainterHandle>,
@@ -22,16 +22,16 @@ pub struct PixCanvas {
     offset: (u32, u32),
 }
 
-impl PixCanvas {
+impl Canvas {
     /// Create a new pixelflut canvas.
     pub fn new(
         host: &str,
         painter_count: usize,
         size: (u32, u32),
         offset: (u32, u32),
-    ) -> PixCanvas {
+    ) -> Canvas {
         // Initialize the object
-        let mut canvas = PixCanvas {
+        let mut canvas = Canvas {
             host: host.to_string(),
 			painter_count,
             painter_handles: Vec::with_capacity(painter_count),
@@ -88,7 +88,7 @@ impl PixCanvas {
                 .expect("failed to open stream to pixelflut");
 
             // Create a new client
-            let client = PixClient::new(stream);
+            let client = Client::new(stream);
 
             // Create a painter
             let mut painter = Painter::new(

@@ -1,9 +1,11 @@
 use std::path::Path;
+use std::thread::sleep;
+use std::time::Duration;
 
 use image;
 use image::{DynamicImage, FilterType};
 
-use pix_canvas::PixCanvas;
+use pix::canvas::Canvas;
 
 
 
@@ -41,7 +43,7 @@ impl ImageManager {
     }
 
     /// Tick the image 
-    pub fn tick(&mut self, canvas: &mut PixCanvas) {
+    pub fn tick(&mut self, canvas: &mut Canvas) {
         // Get the image index bound
         let bound = self.images.len();
 
@@ -55,6 +57,23 @@ impl ImageManager {
 
         // Increase the index
         self.index += 1;
+    }
+
+    /// Start working in the image manager.
+    ///
+    /// This will start walking through all image frames,
+    /// and pushes each frame to all painters,
+    /// with the specified frames per second.
+    pub fn work(&mut self, canvas: &mut Canvas, fps: u32) {
+        loop {
+            // Tick to use the next image
+            self.tick(canvas);
+
+            // Sleep until we need to show the next image
+            sleep(Duration::from_millis(
+                (1000f32 / (fps as f32)) as u64
+            ));
+        }
     }
 }
 

@@ -17,14 +17,14 @@ use color::Color;
 ///
 /// The client provides an interface for other logic to easily talk
 /// to the pixelflut panel.
-pub struct PixClient {
+pub struct Client {
     stream: BufStream<TcpStream>,
 }
 
-impl PixClient {
+impl Client {
     /// Create a new client instance.
-    pub fn new(stream: TcpStream) -> PixClient {
-        PixClient {
+    pub fn new(stream: TcpStream) -> Client {
+        Client {
             stream: BufStream::new(stream),
         }
     }

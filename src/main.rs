@@ -7,13 +7,12 @@ mod color;
 mod image_manager;
 mod painter;
 mod painter_handle;
-mod pix_canvas;
-mod pix_client;
+mod pix;
 mod rect;
 
 use arg_handler::ArgHandler;
 use image_manager::ImageManager;
-use pix_canvas::PixCanvas;
+use pix::canvas::Canvas;
 
 
 
@@ -32,7 +31,7 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
     println!("Starting...");
 
     // Create a new pixelflut canvas
-    let mut canvas = PixCanvas::new(
+    let mut canvas = Canvas::new(
         arg_handler.host(),
         arg_handler.count(),
         arg_handler.size(),

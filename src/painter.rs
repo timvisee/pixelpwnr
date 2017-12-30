@@ -6,14 +6,14 @@ use image::{DynamicImage, Pixel};
 
 use app::PAINTER_IMAGE_WAIT_DELAY_MILLIS;
 use color::Color;
-use pix_client::PixClient;
+use pix::client::Client;
 use rect::Rect;
 
 
 
 /// A painter that paints on a pixelflut panel.
 pub struct Painter {
-    client: PixClient,
+    client: Client,
     area: Rect,
     offset: (u32, u32),
     image: Option<DynamicImage>,
@@ -21,7 +21,7 @@ pub struct Painter {
 
 impl Painter {
     /// Create a new painter.
-    pub fn new(client: PixClient, area: Rect, offset: (u32, u32), image: Option<DynamicImage>) -> Painter {
+    pub fn new(client: Client, area: Rect, offset: (u32, u32), image: Option<DynamicImage>) -> Painter {
         Painter {
             client,
             area,
