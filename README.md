@@ -1,5 +1,6 @@
 # pixelpwnr
-A quick [pixelflut][pixelflut] client in [Rust][rust] for use at [34C3][34C3].
+A quick [pixelflut][pixelflut] ([video][pixelflut-video]) client in
+[Rust][rust] for use at [34C3][34C3], that _pwns_ whole pixelflut panels.
 
 **Note:** This is a prototype project. Some things may not work correctly.
 Or some things may work slow.
@@ -9,6 +10,7 @@ Or some things may work slow.
 * Animated images, with multiple frames
 * Control over render sizes and offset
 * Automatic image sizing and formatting
+* Faster than most other clients :-)
 * Linux, Windows and macOS
 
 ## Usage
@@ -107,5 +109,6 @@ Check out the [LICENSE](LICENSE) file for more information.
 
 [34C3]: https://events.ccc.de/congress/2017/wiki/index.php/Main_Page
 [pixelflut]: https://cccgoe.de/wiki/Pixelflut
+[pixelflut-video]: https://vimeo.com/92827556/
 [rust]: https://rust-lang.org/
 [rustup]: https://rustup.rs/
