@@ -151,6 +151,9 @@ fn start(
     // Create a new pixelflut canvas
     PixCanvas::new(host, image_path, count, size, offset);
 
+    // Load the image manager
+    let image_manager = ImageManager::load(vec![image_path], &size);
+
 	// Sleep this thread
 	thread::sleep(Duration::new(99999999, 0));
 }
@@ -185,6 +188,32 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
         size.1,
         FilterType::Gaussian,
     )
+}
+
+
+
+/// A manager that manages all images to print.
+struct ImageManager {
+    images: Vec<DynamicImage>,
+}
+
+impl ImageManager {
+    /// Intantiate the image manager.
+    pub fn from(images: Vec<DynamicImage>) -> ImageManager {
+        ImageManager {
+            images,
+        }
+    }
+
+    /// Instantiate the image manager, and load the images from the given paths.
+    pub fn load(paths: Vec<&str>, size: &(u32, u32)) -> ImageManager {
+        // Load the images from the paths
+        ImageManager::from(
+            paths.iter()
+                .map(|path| load_image(path, &size))
+                .collect()
+        )
+    }
 }
 
 
@@ -308,10 +337,10 @@ impl PixCanvas {
     }
 
     // Update the image that is being rendered for all painters.
-    pub fn update_image(&self, image: DynamicImage) {
+    pub fn update_image(&mut self, image: &mut DynamicImage) {
         // Update the image for each specific painter handle
-        for handle in self.painter_handles {
-            handle.update_image(&image);
+        for handle in &self.painter_handles {
+            handle.update_image(image);
         }
     }
 }
