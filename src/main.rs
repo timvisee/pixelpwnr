@@ -11,9 +11,6 @@ mod pix_canvas;
 mod pix_client;
 mod rect;
 
-use std::thread;
-use std::time::Duration;
-
 use arg_handler::ArgHandler;
 use image_manager::ImageManager;
 use pix_canvas::PixCanvas;
@@ -48,16 +45,6 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
         &arg_handler.size(),
     );
 
-    // Animate images
-    loop {
-        // Tick to use the next image
-        image_manager.tick(&mut canvas);
-
-        // Sleep until we need to show the next image
-        thread::sleep(
-            Duration::from_millis(
-                (1000f32 / (arg_handler.fps() as f32)) as u64
-            )
-        );
-    }
+    // Start the work in the image manager, to walk through the frames
+    image_manager.work(&mut canvas, arg_handler.fps());
 }
