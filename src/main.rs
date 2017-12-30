@@ -26,33 +26,27 @@ fn main() {
     let arg_handler = ArgHandler::parse();
 
     // Start
-    start(
-        arg_handler.host(),
-        arg_handler.image_paths(),
-        arg_handler.fps(),
-        arg_handler.count(),
-        arg_handler.size(),
-        arg_handler.offset(),
-    );
+    start(&arg_handler);
 }
 
-/// Start the client.
-fn start(
-    host: &str,
-    image_paths: Vec<&str>,
-    fps: u32,
-    count: usize,
-    size: (u32, u32),
-    offset: (u32, u32)
-) {
+/// Start pixelflutting.
+fn start<'a>(arg_handler: &ArgHandler<'a>) {
     // Start
     println!("Starting...");
 
     // Create a new pixelflut canvas
-    let mut canvas = PixCanvas::new(host, count, size, offset);
+    let mut canvas = PixCanvas::new(
+        arg_handler.host(),
+        arg_handler.count(),
+        arg_handler.size(),
+        arg_handler.offset(),
+    );
 
     // Load the image manager
-    let mut image_manager = ImageManager::load(image_paths, &size);
+    let mut image_manager = ImageManager::load(
+        arg_handler.image_paths(),
+        &arg_handler.size(),
+    );
 
     // Animate images
     loop {
@@ -62,7 +56,7 @@ fn start(
         // Sleep until we need to show the next image
         thread::sleep(
             Duration::from_millis(
-                (1000f32 / (fps as f32)) as u64
+                (1000f32 / (arg_handler.fps() as f32)) as u64
             )
         );
     }
