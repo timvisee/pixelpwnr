@@ -265,10 +265,8 @@ impl ImageManager {
             self.index as usize % bound
         ];
 
-        // Push the image to all painter threads
-        for handle in canvas.painter_handles() {
-            handle.update_image(image);
-        }
+        // Update the image on the canvas
+        canvas.update_image(image);
 
         // Increase the index
         self.index += 1;
