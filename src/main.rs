@@ -11,7 +11,7 @@ use std::thread::JoinHandle;
 use std::time::Duration;
 
 use bufstream::BufStream;
-use clap::{Arg, App};
+use clap::{Arg, ArgMatches, App};
 use image::{DynamicImage, FilterType, Pixel};
 
 
@@ -31,6 +31,7 @@ const DEFAULT_IMAGE_HEIGHT: u32 = 1080;
 /// Main application entrypoint.
 fn main() {
     // Parse CLI arguments
+    let matches = parse_args();
 
     // Get the host
     let host = matches
@@ -84,7 +85,7 @@ fn main() {
 }
 
 /// Parse CLI arguments, return the matches.
-fn parse_args() {
+fn parse_args<'a>() -> ArgMatches<'a> {
     // Handle/parse arguments
 	App::new("pixelpwnr")
 		.version("0.1")
@@ -165,7 +166,7 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
     let path = Path::new(&path);
 
     // Check whether the path exists
-    if !path.is_file(path) {
+    if !path.is_file() {
         panic!("The given path does not exist or is not a file");
     }
 
