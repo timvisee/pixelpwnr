@@ -6,18 +6,18 @@ use std::thread;
 
 use image::DynamicImage;
 
-use painter::Painter;
-use painter_handle::PainterHandle;
+use painter::painter::Painter;
+use painter::handle::Handle;
 use pix::client::Client;
 use rect::Rect;
 
 
 
-/// A pixflut instance 
+/// A pixflut instance
 pub struct Canvas {
     host: String,
-	painter_count: usize,
-    painter_handles: Vec<PainterHandle>,
+    painter_count: usize,
+    painter_handles: Vec<Handle>,
     size: (u32, u32),
     offset: (u32, u32),
 }
@@ -33,14 +33,14 @@ impl Canvas {
         // Initialize the object
         let mut canvas = Canvas {
             host: host.to_string(),
-			painter_count,
+            painter_count,
             painter_handles: Vec::with_capacity(painter_count),
             size,
             offset,
         };
 
-		// Show a status message
-		println!("Starting painter threads...");
+        // Show a status message
+        println!("Starting painter threads...");
 
         // Spawn some painters
         canvas.spawn_painters();
@@ -53,19 +53,19 @@ impl Canvas {
     fn spawn_painters(&mut self) {
         // Spawn some painters
         for i in 0..self.painter_count {
-			// Determine the slice width
-			let width = self.size.0 / (self.painter_count as u32);
+           // Determine the slice width
+           let width = self.size.0 / (self.painter_count as u32);
 
-			// Define the area to paint per thread
-			let painter_area = Rect::from(
-				(i as u32) * width,
-				0,
-				width,
-				self.size.1,
-			);
+           // Define the area to paint per thread
+           let painter_area = Rect::from(
+               (i as u32) * width,
+               0,
+               width,
+               self.size.1,
+           );
 
-			// Spawn the painter
-            self.spawn_painter(painter_area);
+           // Spawn the painter
+           self.spawn_painter(painter_area);
         }
     }
 
@@ -113,7 +113,7 @@ impl Canvas {
 
         // Create a new painter handle, pust it to the list
         self.painter_handles.push(
-            PainterHandle::new(
+            Handle::new(
                 thread,
                 area,
                 tx,

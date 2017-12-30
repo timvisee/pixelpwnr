@@ -13,17 +13,17 @@ use rect::Rect;
 ///
 /// This also holds a channel to the painter thread,
 /// to allow image updates to be pushed to the thread.
-pub struct PainterHandle {
+pub struct Handle {
     #[allow(dead_code)]
     thread: JoinHandle<u32>,
     area: Rect,
     image_sender: Sender<DynamicImage>,
 }
 
-impl PainterHandle {
+impl Handle {
     /// Create a new handle from the given properties.
-    pub fn new(thread: JoinHandle<u32>, area: Rect, image_sender: Sender<DynamicImage>) -> PainterHandle {
-        PainterHandle {
+    pub fn new(thread: JoinHandle<u32>, area: Rect, image_sender: Sender<DynamicImage>) -> Handle {
+        Handle {
             thread,
             area,
             image_sender,

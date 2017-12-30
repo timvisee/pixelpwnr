@@ -6,7 +6,6 @@ mod arg_handler;
 mod color;
 mod image_manager;
 mod painter;
-mod painter_handle;
 mod pix;
 mod rect;
 
