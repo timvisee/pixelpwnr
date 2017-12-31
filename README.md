@@ -20,11 +20,11 @@ Pixelflut a simple image:
 # - To host 127.0.0.1 on port 8080
 # - With the image: image.png
 # - With 4 painting threads
-# - With a size of (400, 400)
-pixelpwnr 127.0.0.1:8080 -i image.png -c 4 -w 400 -h 400
+# - With the size of the screen (default)
+pixelpwnr 127.0.0.1:8080 -i image.png -c 4
 
 # Other CLI syntax is also supported
-pixelpwnr "127.0.0.1:8080" -i="image.png" -c=4 -w=400 -h=400
+pixelpwnr "127.0.0.1:8080" --image="image.png" -c=4
 ```
 
 Pixelflut an animated image:
