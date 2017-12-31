@@ -7,3 +7,4 @@ authors = ["Tim Visée <timvisee@gmail.com>"]
 bufstream = "0.1"
 clap = "2.29"
 image = "0.18"
+regex = "0.2"

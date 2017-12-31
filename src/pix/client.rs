@@ -1,12 +1,23 @@
 extern crate bufstream;
+extern crate regex;
 
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 use std::io::prelude::*;
 use std::net::TcpStream;
 
 use self::bufstream::BufStream;
+use self::regex::Regex;
 
 use color::Color;
+
+// The default buffer size for reading the client stream.
+// - Big enough so we don't have to expand
+// - Small enough to not take up to much memory
+const CMD_READ_BUFFER_SIZE: usize = 32;
+
+// The response format of the screen size from a pixelflut server.
+const PIX_SERVER_SIZE_REGEX: &'static str =
+    r"^(?i)\s*SIZE\s*([[:digit:]])+\s*([[:digit:]])+\s*$";
 
 
 
@@ -29,6 +40,16 @@ impl Client {
         }
     }
 
+    /// Create a new client instane from the given host, and connect to it.
+    pub fn connect(host: String) -> Result<Client, Error> {
+        // Create a new stream, and instantiate the client
+        Ok(
+            Client::new(
+                create_stream(host)?
+            )
+        )
+    }
+
     /// Write a pixel to the given stream.
     pub fn write_pixel(&mut self, x: u32, y: u32, color: &Color) -> Result<(), Error> {
         // Write the command to set a pixel
@@ -37,16 +58,27 @@ impl Client {
         )
     }
 
-    // /// Read the size of the screen.
-    // fn read_screen_size(&mut self) {
-    //     // Read the screen size
-    //     let size = self
-    //         .write_read_command("SIZE".into())
-    //         .expect("Failed to read screen size");
-    //
-    //     // TODO: Remove this after debugging
-    //     println!("Read size: {}", size);
-    // }
+    /// Read the size of the screen.
+    pub fn read_screen_size(&mut self) -> Result<(u32, u32), Error> {
+        // Read the screen size
+        let data = self
+            .write_read_command("SIZE".into())
+            .expect("Failed to read screen size");
+
+        // Build a regex to parse the screen size
+        let re = Regex::new(PIX_SERVER_SIZE_REGEX).unwrap();
+
+        // Find captures in the data, return the result
+        match re.captures(&data) {
+            Some(matches) => Ok((
+                matches[1].parse::<u32>().expect("Failed to parse screen width, received malformed data"),
+                matches[2].parse::<u32>().expect("Failed to parse screen height, received malformed data"),
+            )),
+            None => Err(
+                Error::new(ErrorKind::Other, "Failed to parse screen size, received malformed data")
+            ),
+        }
+    }
 
     /// Write the given command to the given stream.
     fn write_command(&mut self, cmd: String) -> Result<(), Error> {
@@ -58,18 +90,29 @@ impl Client {
         Ok(())
     }
 
-    // /// Write the given command to the given stream, and read the output.
-    // fn write_read_command(&mut self, cmd: String) -> Result<String, Error> {
-    //     // Write the command
-    //     self.write_command(cmd);
-    //
-    //     // Read the output
-    //     let mut buffer = String::with_capacity(CMD_READ_BUFFER_SIZE);
-    //     println!("Reading line...");
-    //     self.stream.read_line(&mut buffer)?;
-    //     println!("Done reading");
-    //
-    //     // Return the read string
-    //     Ok(buffer)
-    // }
+    /// Write the given command to the given stream, and read the output.
+    fn write_read_command(&mut self, cmd: String) -> Result<String, Error> {
+        // Write the command
+        self.write_command(cmd);
+
+        // Flush the pipe, ensure the command is actually sent
+        self.stream.flush()?;
+
+        // Read the output
+        // TODO: this operation may get stuck (?) if nothing is received from the server
+        let mut buffer = String::with_capacity(CMD_READ_BUFFER_SIZE);
+        self.stream.read_line(&mut buffer)?;
+
+        // Return the read string
+        Ok(buffer)
+    }
+}
+
+
+
+/// Create a stream to talk to the pixelflut server.
+///
+/// The stream is returned as result.
+fn create_stream(host: String) -> Result<TcpStream, Error> {
+    TcpStream::connect(host)
 }

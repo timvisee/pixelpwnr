@@ -1,5 +1,3 @@
-use std::io::Error;
-use std::net::TcpStream;
 use std::sync::mpsc;
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
@@ -83,19 +81,16 @@ impl Canvas {
 
         // Create the painter thread
         let thread = thread::spawn(move || {
-            // Create a new stream
-            let stream = create_stream(host)
-                .expect("failed to open stream to pixelflut");
-
             // Create a new client
-            let client = Client::new(stream);
+            let client = Client::connect(host)
+                .expect("failed to open stream to pixelflut");
 
             // Create a painter
             let mut painter = Painter::new(
                 client,
                 area,
                 offset,
-                None
+                None,
             );
 
             // Do some work
@@ -128,13 +123,4 @@ impl Canvas {
             handle.update_image(image);
         }
     }
-}
-
-
-
-/// Create a stream to talk to the pixelflut server.
-///
-/// The stream is returned as result.
-fn create_stream(host: String) -> Result<TcpStream, Error> {
-    TcpStream::connect(host)
 }
