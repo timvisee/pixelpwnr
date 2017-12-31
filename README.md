@@ -40,7 +40,7 @@ pixelpwnr 127.0.0.1:8080 -i *.png --fps 5 -c 4 -w 400 -h 400 -x 100 -y 100
 ```
 
 ## Installation
-For installation, Rust cargo is required.
+For installation, Git and Rust cargo are required.
 Install the latest version of Rust with [rustup][rustup].
 
 Then, clone and install pixelpwnr with:
@@ -80,7 +80,7 @@ pixelpwnr --help
 
 pixelpwnr 0.1
 Tim Visee <timvisee@gmail.com>
-Pwns pixelflut
+A quick pixelflut client, that pwns pixelflut panels.
 
 USAGE:
     pixelpwnr [OPTIONS] <HOST> --images <PATH>...
