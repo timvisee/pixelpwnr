@@ -39,13 +39,15 @@ impl ImageManager {
                 .collect()
         );
 
+        // TODO: process the image slices
+
         // We succeeded
         println!("All images have been loaded successfully");
 
         image_manager
     }
 
-    /// Tick the image 
+    /// Tick the image
     pub fn tick(&mut self, canvas: &mut Canvas) {
         // Get the image index bound
         let bound = self.images.len();

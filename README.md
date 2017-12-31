@@ -83,20 +83,20 @@ Tim Visee <timvisee@gmail.com>
 A quick pixelflut client, that pwns pixelflut panels.
 
 USAGE:
-    pixelpwnr [OPTIONS] <HOST> --images <PATH>...
+    pixelpwnr [OPTIONS] <HOST> --image <PATH>...
 
 FLAGS:
         --help       Prints help information
     -V, --version    Prints version information
 
 OPTIONS:
-    -c, --count <COUNT>       Number of simultanious  threads (def: 4)
-    -r, --fps <RATE>          Frames per second with multiple images (def: 1)
-    -h, --height <PIXELS>     Drawing height in pixels (def: 1080)
-    -i, --images <PATH>...    Paths of the images to print
-    -w, --width <PIXELS>      Drawing width in pixels (def: 1920)
-    -x, --x <PIXELS>          Drawing X offset in pixels (def: 0)
-    -y, --y <PIXELS>          Drawing Y offset in pixels (def: 0)
+    -i, --image <PATH>...    Image paths
+    -w, --width <PIXELS>     Draw width (def: 1920)
+    -h, --height <PIXELS>    Draw height (def: 1080)
+    -x, --x <PIXELS>         Draw X offset (def: 0)
+    -y, --y <PIXELS>         Draw Y offset (def: 0)
+    -c, --count <COUNT>      Number of concurrent threads (def: 4)
+    -r, --fps <RATE>         Frames per second with multiple images (def: 1)
 
 ARGS:
     <HOST>    The host to pwn "host:port"

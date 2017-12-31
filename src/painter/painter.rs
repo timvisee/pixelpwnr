@@ -57,10 +57,10 @@ impl Painter {
 
 				// Define the color
 				let color = Color::from(
-					channels[0],
-					channels[1],
-					channels[2],
-				);
+                    channels[0],
+                    channels[1],
+                    channels[2],
+                );
 
                 // Set the pixel
                 self.client.write_pixel(
