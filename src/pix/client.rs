@@ -10,6 +10,8 @@ use self::regex::Regex;
 
 use color::Color;
 
+
+
 // The default buffer size for reading the client stream.
 // - Big enough so we don't have to expand
 // - Small enough to not take up to much memory
@@ -93,7 +95,7 @@ impl Client {
     /// Write the given command to the given stream, and read the output.
     fn write_read_command(&mut self, cmd: String) -> Result<String, Error> {
         // Write the command
-        self.write_command(cmd);
+        self.write_command(cmd)?;
 
         // Flush the pipe, ensure the command is actually sent
         self.stream.flush()?;

@@ -9,9 +9,12 @@ mod painter;
 mod pix;
 mod rect;
 
+use std::io::Error;
+
 use arg_handler::ArgHandler;
 use image_manager::ImageManager;
 use pix::canvas::Canvas;
+use pix::client::Client;
 
 
 
@@ -27,22 +30,42 @@ fn main() {
 /// Start pixelflutting.
 fn start<'a>(arg_handler: &ArgHandler<'a>) {
     // Start
-    println!("Starting...");
+    println!("Starting... (use CTRL+C to stop)");
+
+    // Gather facts about the host
+    let screen_size = gather_host_facts(&arg_handler)
+        .expect("Failed to gather facts about pixelflut server");
+
+    // Determine the size to use
+    let size = arg_handler.size(Some(screen_size));
 
     // Create a new pixelflut canvas
     let mut canvas = Canvas::new(
         arg_handler.host(),
         arg_handler.count(),
-        arg_handler.size(),
+        size,
         arg_handler.offset(),
     );
 
     // Load the image manager
     let mut image_manager = ImageManager::load(
         arg_handler.image_paths(),
-        &arg_handler.size(),
+        &size,
     );
 
     // Start the work in the image manager, to walk through the frames
     image_manager.work(&mut canvas, arg_handler.fps());
+}
+
+/// Gather important facts about the host.
+fn gather_host_facts(arg_handler: &ArgHandler) -> Result<(u32, u32), Error> {
+    // Set up a client, and get the screen size
+    let size = Client::connect(
+        arg_handler.host().to_string(),
+    )?.read_screen_size()?;
+
+    // Print status
+    println!("Gathered screen size: {}x{}", size.0, size.1);
+
+    Ok(size)
 }

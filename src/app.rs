@@ -7,10 +7,6 @@ pub const APP_ABOUT: &'static str = "A quick pixelflut client, that pwns pixelfl
 // The default thread count
 pub const DEFAULT_THREAD_COUNT: usize = 4;
 
-// The default image width and height
-pub const DEFAULT_IMAGE_WIDTH: u32 = 1920;
-pub const DEFAULT_IMAGE_HEIGHT: u32 = 1080;
-
 // The default frames per second rate
 pub const DEFAULT_IMAGE_FPS: u32 = 1;
 

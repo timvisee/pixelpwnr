@@ -38,14 +38,14 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                 .short("w")
                 .long("width")
                 .value_name("PIXELS")
-                .help("Draw width ((def: 1920)")
+                .help("Draw width (def: screen width)")
                 .display_order(2)
                 .takes_value(true))
             .arg(Arg::with_name("height")
                 .short("h")
                 .long("height")
                 .value_name("PIXELS")
-                .help("Draw height (def: 1080)")
+                .help("Draw height (def: screen height)")
                 .display_order(3)
                 .takes_value(true))
             .arg(Arg::with_name("x")
@@ -108,14 +108,19 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     }
 
     /// Get the image size.
-    pub fn size(&self) -> (u32, u32) {
+    /// Use the given default value if not set.
+    pub fn size(&self, def: Option<(u32, u32)>) -> (u32, u32) {
         (
             self.matches.value_of("width")
-                .unwrap_or(&format!("{}", DEFAULT_IMAGE_WIDTH))
+                .unwrap_or(
+                    &format!("{}", def.expect("No screen width set or known").0)
+                )
                 .parse::<u32>()
                 .expect("Invalid image width"),
             self.matches.value_of("height")
-                .unwrap_or(&format!("{}", DEFAULT_IMAGE_HEIGHT))
+                .unwrap_or(
+                    &format!("{}", def.expect("No screen height set or known").1)
+                )
                 .parse::<u32>()
                 .expect("Invalid image height"),
         )
