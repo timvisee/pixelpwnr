@@ -91,8 +91,8 @@ FLAGS:
 
 OPTIONS:
     -i, --image <PATH>...    Image paths
-    -w, --width <PIXELS>     Draw width (def: 1920)
-    -h, --height <PIXELS>    Draw height (def: 1080)
+    -w, --width <PIXELS>     Draw width (def: screen width)
+    -h, --height <PIXELS>    Draw height (def: screen height)
     -x, --x <PIXELS>         Draw X offset (def: 0)
     -y, --y <PIXELS>         Draw Y offset (def: 0)
     -c, --count <COUNT>      Number of concurrent threads (def: 4)

@@ -52,7 +52,7 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                 .short("x")
                 .long("x")
                 .value_name("PIXELS")
-                .help("Draw X offset(def: 0)")
+                .help("Draw X offset (def: 0)")
                 .display_order(4)
                 .takes_value(true))
             .arg(Arg::with_name("y")
