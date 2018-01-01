@@ -39,11 +39,14 @@ Pixelflut an animated image:
 pixelpwnr 127.0.0.1:8080 -i *.png --fps 5 -c 4 -w 400 -h 400 -x 100 -y 100
 ```
 
+Use the `--help` flag, or see the [help](#help) section for all available
+options.
+
 ## Installation
 For installation, Git and Rust cargo are required.
 Install the latest version of Rust with [rustup][rustup].
 
-Then, clone and install pixelpwnr with:
+Then, clone and install `pixelpwnr` with:
 
 ```bash
 # Clone the project
@@ -73,6 +76,28 @@ cargo build --release
 # Start using pixelpwnr
 ./target/release/pixelpwnr --help
 ```
+
+## Performance & speed optimization
+There are many things that affect how quickly pixels can be painted on a
+pixelflut server.  
+Some of them are:
+- Size of the image that is drawn.
+- Amount of connections used to push pixels.
+- Performance of the machine `pixelpwnr` is running on.
+- Network interface performance of the client.
+- Network interface performance of the server.
+- Performance of the pixelflut server.
+
+Things that improve painting performance:
+- Use a wired connection.
+- Use a LAN connection, closely linked to the pixelflut server. The lower
+  latency the better, due to the connection being over TCP.
+- Use as many threads (`-c` flag) as the server, your connection and your
+  machine allows.
+- Paint a smaller image (`-w`, `-h` flags).
+- Paint in an area on the screen, where the least other things are pained.
+- Use multiple machines (servers) with multiple `pixelpwnr` instances to push
+  pixels to the screen.
 
 ## Help
 ```text
