@@ -63,7 +63,7 @@ pixelpwnr --help
 cargo run --release -- --help
 ```
 
-Or just build it and invoke the binary directly:
+Or just build it and invoke the binary directly (Linux/macOS):
 
 ```bash
 # Clone the project
