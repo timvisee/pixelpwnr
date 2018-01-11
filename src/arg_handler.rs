@@ -94,9 +94,10 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     /// Get the thread count.
     pub fn count(&self) -> usize {
         self.matches.value_of("count")
-            .unwrap_or(&format!("{}", num_cpus::get()))
-            .parse::<usize>()
-            .expect("Invalid count specified")
+            .map(|count| count.parse::<usize>()
+                .expect("Invalid count specified")
+            )
+            .unwrap_or(num_cpus::get())
     }
 
     /// Get the image paths.
@@ -111,17 +112,19 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     pub fn size(&self, def: Option<(u32, u32)>) -> (u32, u32) {
         (
             self.matches.value_of("width")
-                .unwrap_or(
-                    &format!("{}", def.expect("No screen width set or known").0)
+                .map(|width| width.parse::<u32>()
+                    .expect("Invalid image width")
                 )
-                .parse::<u32>()
-                .expect("Invalid image width"),
+                .unwrap_or(
+                    def.expect("No screen width set or known").0
+                ),
             self.matches.value_of("height")
-                .unwrap_or(
-                    &format!("{}", def.expect("No screen height set or known").1)
+                .map(|height| height.parse::<u32>()
+                    .expect("Invalid image height")
                 )
-                .parse::<u32>()
-                .expect("Invalid image height"),
+                .unwrap_or(
+                    def.expect("No screen height set or known").1
+                ),
         )
     }
 
@@ -129,21 +132,24 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     pub fn offset(&self) -> (u32, u32) {
         (
             self.matches.value_of("x")
-                .unwrap_or("0")
-                .parse::<u32>()
-                .expect("Invalid X offset"),
+                .map(|x| x.parse::<u32>()
+                    .expect("Invalid X offset")
+                )
+                .unwrap_or(0),
             self.matches.value_of("y")
-                .unwrap_or("0")
-                .parse::<u32>()
-                .expect("Invalid Y offset"),
+                .map(|y| y.parse::<u32>()
+                    .expect("Invalid Y offset")
+                )
+                .unwrap_or(0),
         )
     }
 
     /// Get the FPS.
     pub fn fps(&self) -> u32 {
         self.matches.value_of("fps")
-            .unwrap_or(&format!("{}", DEFAULT_IMAGE_FPS))
-            .parse::<u32>()
-            .expect("Invalid frames per second rate")
+            .map(|fps| fps.parse::<u32>()
+                .expect("Invalid frames per second rate")
+            )
+            .unwrap_or(DEFAULT_IMAGE_FPS)
     }
 }
