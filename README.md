@@ -135,5 +135,5 @@ Check out the [LICENSE](LICENSE) file for more information.
 [34C3]: https://events.ccc.de/congress/2017/wiki/index.php/Main_Page
 [pixelflut]: https://cccgoe.de/wiki/Pixelflut
 [pixelflut-video]: https://vimeo.com/92827556/
-[rust]: https://rust-lang.org/
+[rust]: https://www.rust-lang.org/
 [rustup]: https://rustup.rs/
