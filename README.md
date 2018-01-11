@@ -120,7 +120,7 @@ OPTIONS:
     -h, --height <PIXELS>    Draw height (def: screen height)
     -x <PIXELS>              Draw X offset (def: 0)
     -y <PIXELS>              Draw Y offset (def: 0)
-    -c, --count <COUNT>      Number of concurrent threads (def: 4)
+    -c, --count <COUNT>      Number of concurrent threads (def: CPUs)
     -r, --fps <RATE>         Frames per second with multiple images (def: 1)
 
 ARGS:

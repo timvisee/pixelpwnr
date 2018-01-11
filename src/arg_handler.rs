@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate num_cpus;
 
 use clap::{Arg, ArgMatches, App};
 
@@ -50,14 +51,12 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                 .takes_value(true))
             .arg(Arg::with_name("x")
                 .short("x")
-                .long("x")
                 .value_name("PIXELS")
                 .help("Draw X offset (def: 0)")
                 .display_order(4)
                 .takes_value(true))
             .arg(Arg::with_name("y")
                 .short("y")
-                .long("y")
                 .value_name("PIXELS")
                 .help("Draw Y offset (def: 0)")
                 .display_order(5)
@@ -68,7 +67,7 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                 .alias("thread")
                 .alias("threads")
                 .value_name("COUNT")
-                .help("Number of concurrent threads (def: 4)")
+                .help("Number of concurrent threads (def: CPUs)")
                 .display_order(6)
                 .takes_value(true))
             .arg(Arg::with_name("fps")
@@ -95,7 +94,7 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     /// Get the thread count.
     pub fn count(&self) -> usize {
         self.matches.value_of("count")
-            .unwrap_or(&format!("{}", DEFAULT_THREAD_COUNT))
+            .unwrap_or(&format!("{}", num_cpus::get()))
             .parse::<usize>()
             .expect("Invalid count specified")
     }
