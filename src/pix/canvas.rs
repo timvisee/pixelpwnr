@@ -95,14 +95,8 @@ impl Canvas {
 
             // Do some work
             loop {
-                // Work
-                painter.work()
+                painter.work(&rx)
                     .expect("Painter failed to perform work");
-
-                // Update the image to paint
-                if let Ok(image) = rx.try_recv() {
-                    painter.set_image(image);
-                }
             }
         });
 

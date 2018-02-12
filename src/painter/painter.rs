@@ -1,10 +1,8 @@
 use std::io::Error;
-use std::thread;
-use std::time::Duration;
+use std::sync::mpsc::Receiver;
 
 use image::{DynamicImage, Pixel};
 
-use app::PAINTER_IMAGE_WAIT_DELAY_MILLIS;
 use color::Color;
 use pix::client::Client;
 use rect::Rect;
@@ -32,15 +30,21 @@ impl Painter {
 
     /// Perform work.
     /// Paint the whole defined area.
-    pub fn work(&mut self) -> Result<(), Error> {
-        // Make sure there is an image
+    pub fn work(&mut self, img_receiver: &Receiver<DynamicImage>) -> Result<(), Error> {
+        // Wait for an image, if no image has been set yet
         if self.image.is_none() {
             // Show a warning
-            println!("Painter thread has no image yet to paint, waiting...");
+            println!("Painter thread is waiting for an image...");
 
             // Sleep a little
-            thread::sleep(Duration::from_millis(PAINTER_IMAGE_WAIT_DELAY_MILLIS));
-            return Ok(());
+            // TODO: Do a proper error return here
+            match img_receiver.recv() {
+                Ok(image) => self.set_image(image),
+                Err(_) => return Ok(()),
+            }
+
+            // We may now continue
+            println!("Painter thread received an image, painting...");
         }
 
         // Get an RGB image
@@ -49,6 +53,11 @@ impl Painter {
         // Loop through all the pixels, and set their color
         for x in 0..self.area.w {
             for y in 0..self.area.h {
+                // Update the image to paint
+                if let Ok(image) = img_receiver.try_recv() {
+                    self.set_image(image);
+                }
+
                 // Get the pixel at this location
                 let pixel = image.get_pixel(x, y);
 
