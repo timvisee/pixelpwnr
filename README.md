@@ -7,7 +7,7 @@ Or some things may work slow.
 
 ## Features
 * Many concurrent drawing pipes, fast multithreading
-* Animated images, with multiple frames
+* Animated images, with multiple frame images
 * Control over render sizes and offset
 * Automatic image sizing and formatting
 * Faster than most other clients :-)
