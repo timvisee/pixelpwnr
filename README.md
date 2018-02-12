@@ -2,6 +2,9 @@
 A quick [pixelflut][pixelflut] ([video][pixelflut-video]) client in
 [Rust][rust] for use at [34C3][34C3], that _pwns_ whole pixelflut panels.
 
+For a high performance pixelflut server implementation, see:  
+[→ pixelpwnr-server (server)][pixelpwnr-server]
+
 **Note:** This is a prototype project. Some things may not work correctly.
 Or some things may work slow.
 
@@ -127,6 +130,10 @@ ARGS:
     <HOST>    The host to pwn "host:port"
 ```
 
+## Relevant projects
+* [pixelpwnr-server (server)][pixelpwnr-server]
+* [pixelpwnr-render (GPU rendering backend)][pixelpwnr-render]
+
 ## License
 This project is released under the GNU GPL-3.0 license.
 Check out the [LICENSE](LICENSE) file for more information.
@@ -135,5 +142,7 @@ Check out the [LICENSE](LICENSE) file for more information.
 [34C3]: https://events.ccc.de/congress/2017/wiki/index.php/Main_Page
 [pixelflut]: https://cccgoe.de/wiki/Pixelflut
 [pixelflut-video]: https://vimeo.com/92827556/
+[pixelpwnr-server]: https://github.com/timvisee/pixelpwnr-server
+[pixelpwnr-render]: https://github.com/timvisee/pixelpwnr-render
 [rust]: https://www.rust-lang.org/
 [rustup]: https://rustup.rs/
