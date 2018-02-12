@@ -9,6 +9,3 @@ pub const DEFAULT_THREAD_COUNT: usize = 4;
 
 // The default frames per second rate
 pub const DEFAULT_IMAGE_FPS: u32 = 1;
-
-// The amount of milliseconds to wait for an image, when a painter has no image.
-pub const PAINTER_IMAGE_WAIT_DELAY_MILLIS: u64 = 100;
