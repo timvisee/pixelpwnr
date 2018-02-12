@@ -1,9 +1,11 @@
 # TODO
+- Add downloadable binary (don't require users to install Rust) 
 - Resolve relative paths, or paths with a `~` correctly.
 - Add alpha support.
 - Instantly update images in painter threads,
   not just when the stopped drawing.
 - Create a small listening server, to benchmark throughput.
+- Properly handle connection errors, try to reconnect, show a proper message.
 
 # Further optimizations
 - Process and slice all images before starting, don't process them each frame
