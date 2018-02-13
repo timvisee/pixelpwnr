@@ -19,7 +19,7 @@ const CMD_READ_BUFFER_SIZE: usize = 32;
 
 // The response format of the screen size from a pixelflut server.
 const PIX_SERVER_SIZE_REGEX: &'static str =
-    r"^(?i)\s*SIZE\s*([[:digit:]]+)\s*([[:digit:]]+)\s*$";
+    r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
 
 
 
