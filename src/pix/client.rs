@@ -89,8 +89,9 @@ impl Client {
         self.stream.write("\r\n".as_bytes())?;
 
         // Flush, make sure to clear the send buffer
-        // TODO: make flushing configurable
-        // TODO: make buffer size configurable
+        // TODO: only flush each 100 pixels?
+        // TODO: make flushing configurable?
+        // TODO: make buffer size configurable?
         self.stream.flush()
             .expect("failed to flush write buffer to server");
 
