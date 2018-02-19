@@ -57,7 +57,7 @@ git clone https://github.com/timvisee/pixelpwnr.git
 cd pixelpwnr
 
 # Install pixelpwnr
-cargo install
+cargo install -f
 
 # Start using pixelpwnr
 pixelpwnr --help

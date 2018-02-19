@@ -86,7 +86,13 @@ impl Client {
     fn write_command(&mut self, cmd: String) -> Result<(), Error> {
         // Write the pixels and a new line
         self.stream.write(cmd.as_bytes())?;
-        self.stream.write("\n".as_bytes())?;
+        self.stream.write("\r\n".as_bytes())?;
+
+        // Flush, make sure to clear the send buffer
+        // TODO: make flushing configurable
+        // TODO: make buffer size configurable
+        self.stream.flush()
+            .expect("failed to flush write buffer to server");
 
         // Everything seems to be ok
         Ok(())
