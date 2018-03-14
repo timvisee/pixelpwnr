@@ -112,14 +112,14 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     pub fn size(&self, def: Option<(u32, u32)>) -> (u32, u32) {
         (
             self.matches.value_of("width")
-                .map(|width| width.parse::<u32>()
+                .map(|width| width.parse()
                     .expect("Invalid image width")
                 )
                 .unwrap_or(
                     def.expect("No screen width set or known").0
                 ),
             self.matches.value_of("height")
-                .map(|height| height.parse::<u32>()
+                .map(|height| height.parse()
                     .expect("Invalid image height")
                 )
                 .unwrap_or(

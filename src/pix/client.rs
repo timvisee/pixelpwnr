@@ -117,6 +117,13 @@ impl Client {
     }
 }
 
+impl Drop for Client {
+    /// Nicely drop the connection when the client is disconnected.
+    fn drop(&mut self) {
+        let _ = self.write_command("\r\nQUIT".into());
+    }
+}
+
 
 
 /// Create a stream to talk to the pixelflut server.
