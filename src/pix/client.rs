@@ -92,8 +92,8 @@ impl Client {
         // TODO: only flush each 100 pixels?
         // TODO: make flushing configurable?
         // TODO: make buffer size configurable?
-        self.stream.flush()
-            .expect("failed to flush write buffer to server");
+        // self.stream.flush()
+        //     .expect("failed to flush write buffer to server");
 
         // Everything seems to be ok
         Ok(())
