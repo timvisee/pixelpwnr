@@ -102,6 +102,11 @@ Things that improve painting performance:
 - Use multiple machines (servers) with multiple `pixelpwnr` instances to push
   pixels to the screen.
 
+## Future improvements
+This application is still in the prototyping phase, and many things can be
+improved for significantly better performance and usability.
+See the [TODO](TODO.md) file for a list of future improvements.
+
 ## Help
 ```text
 pixelpwnr --help
