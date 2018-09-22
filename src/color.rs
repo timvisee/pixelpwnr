@@ -9,16 +9,11 @@ pub struct Color {
 }
 
 impl Color {
-
     /// Constructor.
     ///
     /// The color channels must be between 0 and 255.
     pub fn from(r: u8, g: u8, b: u8) -> Color {
-        Color {
-            r,
-            g,
-            b,
-        }
+        Color { r, g, b }
     }
 
     /// Get a hexadecimal representation of the color,

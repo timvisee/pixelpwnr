@@ -16,8 +16,6 @@ use image_manager::ImageManager;
 use pix::canvas::Canvas;
 use pix::client::Client;
 
-
-
 /// Main application entrypoint.
 fn main() {
     // Parse CLI arguments
@@ -33,8 +31,8 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
     println!("Starting... (use CTRL+C to stop)");
 
     // Gather facts about the host
-    let screen_size = gather_host_facts(&arg_handler)
-        .expect("Failed to gather facts about pixelflut server");
+    let screen_size =
+        gather_host_facts(&arg_handler).expect("Failed to gather facts about pixelflut server");
 
     // Determine the size to use
     let size = arg_handler.size(Some(screen_size));
@@ -48,10 +46,7 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
     );
 
     // Load the image manager
-    let mut image_manager = ImageManager::load(
-        arg_handler.image_paths(),
-        &size,
-    );
+    let mut image_manager = ImageManager::load(arg_handler.image_paths(), &size);
 
     // Start the work in the image manager, to walk through the frames
     image_manager.work(&mut canvas, arg_handler.fps());
@@ -60,9 +55,7 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
 /// Gather important facts about the host.
 fn gather_host_facts(arg_handler: &ArgHandler) -> Result<(u32, u32), Error> {
     // Set up a client, and get the screen size
-    let size = Client::connect(
-        arg_handler.host().to_string(),
-    )?.read_screen_size()?;
+    let size = Client::connect(arg_handler.host().to_string())?.read_screen_size()?;
 
     // Print status
     println!("Gathered screen size: {}x{}", size.0, size.1);

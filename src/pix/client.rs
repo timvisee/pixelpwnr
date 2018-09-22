@@ -1,8 +1,8 @@
 extern crate bufstream;
 extern crate regex;
 
-use std::io::{Error, ErrorKind};
 use std::io::prelude::*;
+use std::io::{Error, ErrorKind};
 use std::net::TcpStream;
 
 use self::bufstream::BufStream;
@@ -10,18 +10,13 @@ use self::regex::Regex;
 
 use color::Color;
 
-
-
 // The default buffer size for reading the client stream.
 // - Big enough so we don't have to expand
 // - Small enough to not take up to much memory
 const CMD_READ_BUFFER_SIZE: usize = 32;
 
 // The response format of the screen size from a pixelflut server.
-const PIX_SERVER_SIZE_REGEX: &'static str =
-    r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
-
-
+const PIX_SERVER_SIZE_REGEX: &'static str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
 
 /// A pixelflut client.
 ///
@@ -45,19 +40,13 @@ impl Client {
     /// Create a new client instane from the given host, and connect to it.
     pub fn connect(host: String) -> Result<Client, Error> {
         // Create a new stream, and instantiate the client
-        Ok(
-            Client::new(
-                create_stream(host)?
-            )
-        )
+        Ok(Client::new(create_stream(host)?))
     }
 
     /// Write a pixel to the given stream.
     pub fn write_pixel(&mut self, x: u32, y: u32, color: &Color) -> Result<(), Error> {
         // Write the command to set a pixel
-        self.write_command(
-            format!("PX {} {} {}", x, y, color.as_hex()),
-        )
+        self.write_command(format!("PX {} {} {}", x, y, color.as_hex()))
     }
 
     /// Read the size of the screen.
@@ -73,12 +62,17 @@ impl Client {
         // Find captures in the data, return the result
         match re.captures(&data) {
             Some(matches) => Ok((
-                matches[1].parse::<u32>().expect("Failed to parse screen width, received malformed data"),
-                matches[2].parse::<u32>().expect("Failed to parse screen height, received malformed data"),
+                matches[1]
+                    .parse::<u32>()
+                    .expect("Failed to parse screen width, received malformed data"),
+                matches[2]
+                    .parse::<u32>()
+                    .expect("Failed to parse screen height, received malformed data"),
             )),
-            None => Err(
-                Error::new(ErrorKind::Other, "Failed to parse screen size, received malformed data")
-            ),
+            None => Err(Error::new(
+                ErrorKind::Other,
+                "Failed to parse screen size, received malformed data",
+            )),
         }
     }
 
@@ -92,7 +86,8 @@ impl Client {
         // TODO: only flush each 100 pixels?
         // TODO: make flushing configurable?
         // TODO: make buffer size configurable?
-        self.stream.flush()
+        self.stream
+            .flush()
             .expect("failed to flush write buffer to server");
 
         // Everything seems to be ok
@@ -123,8 +118,6 @@ impl Drop for Client {
         let _ = self.write_command("\r\nQUIT".into());
     }
 }
-
-
 
 /// Create a stream to talk to the pixelflut server.
 ///

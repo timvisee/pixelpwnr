@@ -7,8 +7,6 @@ use image::{DynamicImage, FilterType};
 
 use pix::canvas::Canvas;
 
-
-
 /// A manager that manages all images to print.
 pub struct ImageManager {
     images: Vec<DynamicImage>,
@@ -33,11 +31,8 @@ impl ImageManager {
         println!("Load and process {} image(s)...", paths.len());
 
         // Load the images from the paths
-        let image_manager = ImageManager::from(
-            paths.iter()
-                .map(|path| load_image(path, &size))
-                .collect()
-        );
+        let image_manager =
+            ImageManager::from(paths.iter().map(|path| load_image(path, &size)).collect());
 
         // TODO: process the image slices
 
@@ -58,9 +53,7 @@ impl ImageManager {
         }
 
         // Get the image to use
-        let image = &mut self.images[
-            self.index as usize % bound
-        ];
+        let image = &mut self.images[self.index as usize % bound];
 
         // Update the image on the canvas
         canvas.update_image(image);
@@ -83,14 +76,10 @@ impl ImageManager {
             self.tick(canvas);
 
             // Sleep until we need to show the next image
-            sleep(Duration::from_millis(
-                (1000f32 / (fps as f32)) as u64
-            ));
+            sleep(Duration::from_millis((1000f32 / (fps as f32)) as u64));
         }
     }
 }
-
-
 
 /// Load the image at the given path, and size it correctly
 fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
@@ -106,9 +95,5 @@ fn load_image(path: &str, size: &(u32, u32)) -> DynamicImage {
     let image = image::open(&path).unwrap();
 
     // Resize the image to fit the screen
-    image.resize_exact(
-        size.0,
-        size.1,
-        FilterType::Gaussian,
-    )
+    image.resize_exact(size.0, size.1, FilterType::Gaussian)
 }

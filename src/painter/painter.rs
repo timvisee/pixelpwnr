@@ -7,8 +7,6 @@ use color::Color;
 use pix::client::Client;
 use rect::Rect;
 
-
-
 /// A painter that paints on a pixelflut panel.
 pub struct Painter {
     client: Client,
@@ -19,7 +17,12 @@ pub struct Painter {
 
 impl Painter {
     /// Create a new painter.
-    pub fn new(client: Client, area: Rect, offset: (u32, u32), image: Option<DynamicImage>) -> Painter {
+    pub fn new(
+        client: Client,
+        area: Rect,
+        offset: (u32, u32),
+        image: Option<DynamicImage>,
+    ) -> Painter {
         Painter {
             client,
             area,
@@ -61,15 +64,11 @@ impl Painter {
                 // Get the pixel at this location
                 let pixel = image.get_pixel(x, y);
 
-				// Get the channels
-				let channels = pixel.channels();
+                // Get the channels
+                let channels = pixel.channels();
 
-				// Define the color
-				let color = Color::from(
-                    channels[0],
-                    channels[1],
-                    channels[2],
-                );
+                // Define the color
+                let color = Color::from(channels[0], channels[1], channels[2]);
 
                 // Set the pixel
                 self.client.write_pixel(

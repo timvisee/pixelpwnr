@@ -7,8 +7,6 @@ use image::DynamicImage;
 
 use rect::Rect;
 
-
-
 /// A handle to a painter thread.
 ///
 /// This also holds a channel to the painter thread,
@@ -33,16 +31,12 @@ impl Handle {
     /// Push an image update.
     pub fn update_image(&self, full_image: &mut DynamicImage) {
         // Crop the image to the area
-        let image = full_image.crop(
-            self.area.x,
-            self.area.y,
-            self.area.w,
-            self.area.h,
-        );
+        let image = full_image.crop(self.area.x, self.area.y, self.area.w, self.area.h);
 
         // Push a new image to the thread
         // TODO: return this result
-        self.image_sender.send(image)
+        self.image_sender
+            .send(image)
             .expect("Failed to send image update to painter");
     }
 }

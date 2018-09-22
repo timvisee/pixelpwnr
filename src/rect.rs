@@ -10,11 +10,6 @@ pub struct Rect {
 
 impl Rect {
     pub fn from(x: u32, y: u32, w: u32, h: u32) -> Rect {
-        Rect {
-            x,
-            y,
-            w,
-            h,
-        }
+        Rect { x, y, w, h }
     }
 }
