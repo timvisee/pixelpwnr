@@ -100,7 +100,7 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
         self.matches
             .value_of("count")
             .map(|count| count.parse::<usize>().expect("Invalid count specified"))
-            .unwrap_or(num_cpus::get())
+            .unwrap_or_else(num_cpus::get)
     }
 
     /// Get the image paths.

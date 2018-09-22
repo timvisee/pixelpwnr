@@ -18,7 +18,7 @@ impl Color {
 
     /// Get a hexadecimal representation of the color,
     /// such as `FFFFFF` for white and `FF0000` for red.
-    pub fn as_hex(&self) -> String {
+    pub fn as_hex(self) -> String {
         format!("{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
 }

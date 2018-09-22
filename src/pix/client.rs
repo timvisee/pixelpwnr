@@ -16,7 +16,7 @@ use color::Color;
 const CMD_READ_BUFFER_SIZE: usize = 32;
 
 // The response format of the screen size from a pixelflut server.
-const PIX_SERVER_SIZE_REGEX: &'static str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
+const PIX_SERVER_SIZE_REGEX: &str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
 
 /// A pixelflut client.
 ///
@@ -44,9 +44,9 @@ impl Client {
     }
 
     /// Write a pixel to the given stream.
-    pub fn write_pixel(&mut self, x: u32, y: u32, color: &Color) -> Result<(), Error> {
+    pub fn write_pixel(&mut self, x: u32, y: u32, color: Color) -> Result<(), Error> {
         // Write the command to set a pixel
-        self.write_command(format!("PX {} {} {}", x, y, color.as_hex()))
+        self.write_command(&format!("PX {} {} {}", x, y, color.as_hex()))
     }
 
     /// Read the size of the screen.
@@ -77,10 +77,10 @@ impl Client {
     }
 
     /// Write the given command to the given stream.
-    fn write_command(&mut self, cmd: String) -> Result<(), Error> {
+    fn write_command(&mut self, cmd: &str) -> Result<(), Error> {
         // Write the pixels and a new line
-        self.stream.write(cmd.as_bytes())?;
-        self.stream.write("\r\n".as_bytes())?;
+        self.stream.write_all(cmd.as_bytes())?;
+        self.stream.write_all(b"\r\n")?;
 
         // Flush, make sure to clear the send buffer
         // TODO: only flush each 100 pixels?
@@ -95,7 +95,7 @@ impl Client {
     }
 
     /// Write the given command to the given stream, and read the output.
-    fn write_read_command(&mut self, cmd: String) -> Result<String, Error> {
+    fn write_read_command(&mut self, cmd: &str) -> Result<String, Error> {
         // Write the command
         self.write_command(cmd)?;
 

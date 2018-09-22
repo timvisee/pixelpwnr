@@ -74,7 +74,7 @@ impl Painter {
                 self.client.write_pixel(
                     x + self.area.x + self.offset.0,
                     y + self.area.y + self.offset.1,
-                    &color,
+                    color,
                 )?;
             }
         }
