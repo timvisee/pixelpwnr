@@ -69,9 +69,13 @@ impl Canvas {
 
         // Create the painter thread
         let thread = thread::spawn(move || {
+            // Create the painter
+            let mut painter = Painter::new(None, area, offset, None);
+
             loop {
+                // The painting loop
                 'paint: loop {
-                    // Create a new client
+                    // Connect
                     let client = match Client::connect(host.clone()) {
                         Ok(client) => client,
                         Err(e) => {
@@ -79,9 +83,7 @@ impl Canvas {
                             break 'paint;
                         },
                     };
-
-                    // Create a painter
-                    let mut painter = Painter::new(client, area, offset, None);
+                    painter.set_client(Some(client));
 
                     // Keep painting
                     loop {

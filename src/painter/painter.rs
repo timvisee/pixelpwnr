@@ -9,7 +9,7 @@ use rect::Rect;
 
 /// A painter that paints on a pixelflut panel.
 pub struct Painter {
-    client: Client,
+    client: Option<Client>,
     area: Rect,
     offset: (u32, u32),
     image: Option<DynamicImage>,
@@ -18,7 +18,7 @@ pub struct Painter {
 impl Painter {
     /// Create a new painter.
     pub fn new(
-        client: Client,
+        client: Option<Client>,
         area: Rect,
         offset: (u32, u32),
         image: Option<DynamicImage>,
@@ -71,11 +71,13 @@ impl Painter {
                 let color = Color::from(channels[0], channels[1], channels[2]);
 
                 // Set the pixel
-                self.client.write_pixel(
-                    x + self.area.x + self.offset.0,
-                    y + self.area.y + self.offset.1,
-                    color,
-                )?;
+                if let Some(client) = &mut self.client {
+                    client.write_pixel(
+                        x + self.area.x + self.offset.0,
+                        y + self.area.y + self.offset.1,
+                        color,
+                    )?;
+                }
             }
         }
 
@@ -86,5 +88,10 @@ impl Painter {
     /// Update the image that should be painted
     pub fn set_image(&mut self, image: DynamicImage) {
         self.image = Some(image);
+    }
+
+    /// Update the client.
+    pub fn set_client(&mut self, client: Option<Client>) {
+        self.client = client;
     }
 }
