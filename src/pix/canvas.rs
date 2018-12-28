@@ -1,6 +1,7 @@
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc::{self, Receiver, Sender};
+use std::thread::sleep;
 use std::thread;
+use std::time::Duration;
 
 use image::DynamicImage;
 
@@ -68,15 +69,32 @@ impl Canvas {
 
         // Create the painter thread
         let thread = thread::spawn(move || {
-            // Create a new client
-            let client = Client::connect(host).expect("failed to open stream to pixelflut");
-
-            // Create a painter
-            let mut painter = Painter::new(client, area, offset, None);
-
-            // Do some work
             loop {
-                painter.work(&rx).expect("Painter failed to perform work");
+                'paint: loop {
+                    // Create a new client
+                    let client = match Client::connect(host.clone()) {
+                        Ok(client) => client,
+                        Err(e) => {
+                            eprintln!("Painter failed to connect: {}", e);
+                            break 'paint;
+                        },
+                    };
+
+                    // Create a painter
+                    let mut painter = Painter::new(client, area, offset, None);
+
+                    // Keep painting
+                    loop {
+                        if let Err(e) = painter.work(&rx) {
+                            println!("Painter error: {}", e);
+                            break 'paint;
+                        }
+                    }
+                }
+
+                // Sleep for half a second before restarting the painter
+                sleep(Duration::from_millis(500));
+                println!("Restarting failed painter...");
             }
         });
 

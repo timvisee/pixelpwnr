@@ -87,8 +87,7 @@ impl Client {
         // TODO: make flushing configurable?
         // TODO: make buffer size configurable?
         self.stream
-            .flush()
-            .expect("failed to flush write buffer to server");
+            .flush()?;
 
         // Everything seems to be ok
         Ok(())
