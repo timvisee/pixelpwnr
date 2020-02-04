@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate image;
+extern crate rayon;
 
 mod app;
 mod arg_handler;
