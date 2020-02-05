@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
+use rayon::prelude::*;
 
 use image;
 use image::{DynamicImage, FilterType};
@@ -32,7 +33,7 @@ impl ImageManager {
 
         // Load the images from the paths
         let image_manager =
-            ImageManager::from(paths.iter().map(|path| load_image(path, size)).collect());
+            ImageManager::from(paths.par_iter().map(|path| load_image(path, size)).collect());
 
         // TODO: process the image slices
 
