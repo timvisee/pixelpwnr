@@ -51,7 +51,7 @@ impl Painter {
         }
 
         // Get an RGB image
-        let image = self.image.as_mut().unwrap().to_rgba();
+        let image = self.image.as_mut().unwrap().to_rgba8();
 
         // Loop through all the pixels, and set their color
         for x in 0..self.area.w {
