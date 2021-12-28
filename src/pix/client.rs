@@ -80,7 +80,7 @@ impl Client {
     fn write_command(&mut self, cmd: &str) -> Result<(), Error> {
         // Write the pixels and a new line
         self.stream.write_all(cmd.as_bytes())?;
-        self.stream.write_all(b"\r\n")?;
+        self.stream.write_all(b"\n")?;
 
         // Flush, make sure to clear the send buffer
         // TODO: only flush each 100 pixels?
@@ -114,7 +114,7 @@ impl Client {
 impl Drop for Client {
     /// Nicely drop the connection when the client is disconnected.
     fn drop(&mut self) {
-        let _ = self.write_command("\r\nQUIT".into());
+        let _ = self.write_command("\nQUIT".into());
     }
 }
 
