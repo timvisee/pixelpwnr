@@ -51,7 +51,7 @@ impl Painter {
         }
 
         // Get an RGB image
-        let image = self.image.as_mut().unwrap().to_rgb();
+        let image = self.image.as_mut().unwrap().to_rgba8();
 
         // Loop through all the pixels, and set their color
         for x in 0..self.area.w {
@@ -68,7 +68,8 @@ impl Painter {
                 let channels = pixel.channels();
 
                 // Define the color
-                let color = Color::from(channels[0], channels[1], channels[2]);
+                let color = Color::from(channels[0], channels[1], channels[2], channels[3]);
+
 
                 // Set the pixel
                 if let Some(client) = &mut self.client {

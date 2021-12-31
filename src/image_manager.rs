@@ -4,7 +4,8 @@ use std::time::Duration;
 use rayon::prelude::*;
 
 use image;
-use image::{DynamicImage, FilterType};
+use image::DynamicImage;
+use image::imageops::FilterType;
 
 use pix::canvas::Canvas;
 
