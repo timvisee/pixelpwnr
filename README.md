@@ -137,7 +137,6 @@ ARGS:
 
 ## Relevant projects
 * [pixelpwnr-server (server)][pixelpwnr-server]
-* [pixelpwnr-render (GPU rendering backend)][pixelpwnr-render]
 
 ## License
 This project is released under the GNU GPL-3.0 license.
@@ -148,6 +147,5 @@ Check out the [LICENSE](LICENSE) file for more information.
 [pixelflut]: https://cccgoe.de/wiki/Pixelflut
 [pixelflut-video]: https://vimeo.com/92827556/
 [pixelpwnr-server]: https://github.com/timvisee/pixelpwnr-server
-[pixelpwnr-render]: https://github.com/timvisee/pixelpwnr-render
 [rust]: https://www.rust-lang.org/
 [rustup]: https://rustup.rs/
