@@ -2,6 +2,15 @@
 name = "pixelpwnr"
 version = "0.1.0"
 authors = ["Tim Visée <timvisee@gmail.com>"]
+license = "GPL-3.0"
+readme = "README.md"
+homepage = "https://timvisee.com/projects/pixelpwnr"
+repository = "https://github.com/timvisee/pixelpwnr"
+description = "Insanely fast pixelflut client for images and animations"
+keywords = ["pixelflut", "pixelpwnr"]
+categories = [
+    "command-line-utilities",
+]
 
 [dependencies]
 bufstream = "0.1"
