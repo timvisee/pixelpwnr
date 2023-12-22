@@ -67,6 +67,10 @@ impl Painter {
                 // Get the channels
                 let channels = pixel.channels();
 
+                if channels[3] == 0 {
+                    continue;
+                }
+
                 // Define the color
                 let color = Color::from(channels[0], channels[1], channels[2], channels[3]);
 
