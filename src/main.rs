@@ -2,7 +2,6 @@ extern crate clap;
 extern crate image;
 extern crate rayon;
 
-mod app;
 mod arg_handler;
 mod color;
 mod image_manager;
@@ -27,7 +26,7 @@ fn main() {
 }
 
 /// Start pixelflutting.
-fn start<'a>(arg_handler: &ArgHandler<'a>) {
+fn start(arg_handler: &ArgHandler) {
     // Start
     println!("Starting... (use CTRL+C to stop)");
 

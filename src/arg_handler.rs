@@ -1,171 +1,103 @@
 extern crate clap;
 extern crate num_cpus;
 
-use clap::{App, Arg, ArgMatches};
+use clap::Parser;
 
-use app::*;
+#[derive(Parser)]
+#[command(author, version, about, disable_help_flag = true)]
+pub struct Arguments {
+    // manually redefine help, but without short option, because `-h`
+    // is already used by the height option.
+    /// Show this help
+    #[clap(long, action = clap::ArgAction::HelpLong)]
+    help: Option<bool>,
 
-/// CLI argument handler.
-pub struct ArgHandler<'a> {
-    matches: ArgMatches<'a>,
+    /// The host to pwn "host:port"
+    host: String,
+
+    /// Image path(s)
+    #[arg(short, long, value_name = "PATH", required = true, alias = "images")]
+    image: Vec<String>,
+
+    /// Draw width [default: screen width]
+    #[arg(short, long, value_name = "PIXELS")]
+    width: Option<u16>,
+    /// Draw height [default: screen height]
+    #[arg(short, long, value_name = "PIXELS")]
+    height: Option<u16>,
+
+    /// Draw X offset
+    #[arg(short, value_name = "PIXELS", default_value_t = 0)]
+    x: u16,
+    /// Draw Y offset
+    #[arg(short, value_name = "PIXELS", default_value_t = 0)]
+    y: u16,
+
+    /// Number of concurrent threads [default: number of CPUs]
+    #[arg(short, long, aliases = ["thread", "threads"])]
+    count: Option<usize>,
+
+    /// Frames per second with multiple images
+    #[arg(short = 'r', long, value_name = "RATE", default_value_t = 1)]
+    fps: u32,
+
+    /// Use binary mode to set pixels (`PB` protocol extension) [default: off]
+    #[arg(short, long, alias = "bin")]
+    binary: bool,
 }
 
-impl<'a: 'b, 'b> ArgHandler<'a> {
-    /// Parse CLI arguments.
-    pub fn parse() -> ArgHandler<'a> {
-        // Handle/parse arguments
-        let matches = App::new(APP_NAME)
-            .version(APP_VERSION)
-            .author(APP_AUTHOR)
-            .about(APP_ABOUT)
-            .arg(
-                Arg::with_name("HOST")
-                    .help("The host to pwn \"host:port\"")
-                    .required(true)
-                    .index(1),
-            )
-            .arg(
-                Arg::with_name("image")
-                    .short("i")
-                    .long("image")
-                    .alias("images")
-                    .value_name("PATH")
-                    .help("Image paths")
-                    .required(true)
-                    .multiple(true)
-                    .display_order(1)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("width")
-                    .short("w")
-                    .long("width")
-                    .value_name("PIXELS")
-                    .help("Draw width (def: screen width)")
-                    .display_order(2)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("height")
-                    .short("h")
-                    .long("height")
-                    .value_name("PIXELS")
-                    .help("Draw height (def: screen height)")
-                    .display_order(3)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("x")
-                    .short("x")
-                    .value_name("PIXELS")
-                    .help("Draw X offset (def: 0)")
-                    .display_order(4)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("y")
-                    .short("y")
-                    .value_name("PIXELS")
-                    .help("Draw Y offset (def: 0)")
-                    .display_order(5)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("count")
-                    .short("c")
-                    .long("count")
-                    .alias("thread")
-                    .alias("threads")
-                    .value_name("COUNT")
-                    .help("Number of concurrent threads (def: CPUs)")
-                    .display_order(6)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("fps")
-                    .short("r")
-                    .long("fps")
-                    .value_name("RATE")
-                    .help("Frames per second with multiple images (def: 1)")
-                    .display_order(7)
-                    .takes_value(true),
-            )
-            .arg(
-                Arg::with_name("binary")
-                    .short("b")
-                    .long("binary")
-                    .help("Use binary mode to set pixels (PB)")
-                    .display_order(7)
-                    .takes_value(false),
-            )
-            .get_matches();
+/// CLI argument handler.
+pub struct ArgHandler {
+    data: Arguments,
+}
 
-        // Instantiate
-        ArgHandler { matches }
+impl ArgHandler {
+    pub fn parse() -> ArgHandler {
+        ArgHandler {
+            data: Arguments::parse(),
+        }
     }
 
     /// Get the host property.
-    pub fn host(&'a self) -> &'b str {
-        self.matches
-            .value_of("HOST")
-            .expect("Please specify a host")
+    pub fn host(&self) -> &str {
+        self.data.host.as_str()
     }
 
     /// Get the thread count.
     pub fn count(&self) -> usize {
-        self.matches
-            .value_of("count")
-            .map(|count| count.parse::<usize>().expect("Invalid count specified"))
-            .unwrap_or_else(num_cpus::get)
+        self.data.count.unwrap_or_else(num_cpus::get)
     }
 
     /// Get the image paths.
-    pub fn image_paths(&'a self) -> Vec<&'b str> {
-        self.matches
-            .values_of("image")
-            .expect("Please specify an image paths")
-            .collect()
+    pub fn image_paths(&self) -> Vec<&str> {
+        self.data.image.iter().map(|x| x.as_str()).collect()
     }
 
     /// Get the image size.
     /// Use the given default value if not set.
     pub fn size(&self, def: Option<(u16, u16)>) -> (u16, u16) {
         (
-            self.matches
-                .value_of("width")
-                .map(|width| width.parse().expect("Invalid image width"))
+            self.data
+                .width
                 .unwrap_or(def.expect("No screen width set or known").0),
-            self.matches
-                .value_of("height")
-                .map(|height| height.parse().expect("Invalid image height"))
+            self.data
+                .height
                 .unwrap_or(def.expect("No screen height set or known").1),
         )
     }
 
     /// Get the image offset.
     pub fn offset(&self) -> (u16, u16) {
-        (
-            self.matches
-                .value_of("x")
-                .map(|x| x.parse::<u16>().expect("Invalid X offset"))
-                .unwrap_or(0),
-            self.matches
-                .value_of("y")
-                .map(|y| y.parse::<u16>().expect("Invalid Y offset"))
-                .unwrap_or(0),
-        )
+        (self.data.x, self.data.y)
     }
 
     /// Get the FPS.
     pub fn fps(&self) -> u32 {
-        self.matches
-            .value_of("fps")
-            .map(|fps| fps.parse::<u32>().expect("Invalid frames per second rate"))
-            .unwrap_or(DEFAULT_IMAGE_FPS)
+        self.data.fps
     }
 
     /// Whether to use binary mode.
     pub fn binary(&self) -> bool {
-        self.matches.is_present("binary")
+        self.data.binary
     }
 }
