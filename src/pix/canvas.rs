@@ -15,8 +15,8 @@ pub struct Canvas {
     host: String,
     painter_count: usize,
     painter_handles: Vec<Handle>,
-    size: (u32, u32),
-    offset: (u32, u32),
+    size: (u16, u16),
+    offset: (u16, u16),
 }
 
 impl Canvas {
@@ -24,8 +24,8 @@ impl Canvas {
     pub fn new(
         host: &str,
         painter_count: usize,
-        size: (u32, u32),
-        offset: (u32, u32),
+        size: (u16, u16),
+        offset: (u16, u16),
         binary: bool,
     ) -> Canvas {
         // Initialize the object
@@ -52,10 +52,10 @@ impl Canvas {
         // Spawn some painters
         for i in 0..self.painter_count {
             // Determine the slice width
-            let width = self.size.0 / (self.painter_count as u32);
+            let width = self.size.0 / (self.painter_count as u16);
 
             // Define the area to paint per thread
-            let painter_area = Rect::from((i as u32) * width, 0, width, self.size.1);
+            let painter_area = Rect::from((i as u16) * width, 0, width, self.size.1);
 
             // Spawn the painter
             self.spawn_painter(painter_area, binary);

@@ -129,7 +129,7 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
 
     /// Get the image size.
     /// Use the given default value if not set.
-    pub fn size(&self, def: Option<(u32, u32)>) -> (u32, u32) {
+    pub fn size(&self, def: Option<(u16, u16)>) -> (u16, u16) {
         (
             self.matches
                 .value_of("width")
@@ -143,15 +143,15 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
     }
 
     /// Get the image offset.
-    pub fn offset(&self) -> (u32, u32) {
+    pub fn offset(&self) -> (u16, u16) {
         (
             self.matches
                 .value_of("x")
-                .map(|x| x.parse::<u32>().expect("Invalid X offset"))
+                .map(|x| x.parse::<u16>().expect("Invalid X offset"))
                 .unwrap_or(0),
             self.matches
                 .value_of("y")
-                .map(|y| y.parse::<u32>().expect("Invalid Y offset"))
+                .map(|y| y.parse::<u16>().expect("Invalid Y offset"))
                 .unwrap_or(0),
         )
     }
