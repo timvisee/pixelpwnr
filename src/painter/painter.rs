@@ -74,7 +74,6 @@ impl Painter {
                 // Define the color
                 let color = Color::from(channels[0], channels[1], channels[2], channels[3]);
 
-
                 // Set the pixel
                 if let Some(client) = &mut self.client {
                     client.write_pixel(

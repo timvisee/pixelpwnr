@@ -1,11 +1,11 @@
+use rayon::prelude::*;
 use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
-use rayon::prelude::*;
 
 use image;
-use image::DynamicImage;
 use image::imageops::FilterType;
+use image::DynamicImage;
 
 use pix::canvas::Canvas;
 
@@ -33,8 +33,12 @@ impl ImageManager {
         println!("Load and process {} image(s)...", paths.len());
 
         // Load the images from the paths
-        let image_manager =
-            ImageManager::from(paths.par_iter().map(|path| load_image(path, size)).collect());
+        let image_manager = ImageManager::from(
+            paths
+                .par_iter()
+                .map(|path| load_image(path, size))
+                .collect(),
+        );
 
         // TODO: process the image slices
 
