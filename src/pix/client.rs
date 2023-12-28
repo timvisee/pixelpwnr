@@ -27,33 +27,57 @@ const PIX_SERVER_SIZE_REGEX: &str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:
 /// to the pixelflut panel.
 pub struct Client {
     stream: BufStream<TcpStream>,
+
+    /// Whether to use binary mode (PB) instead of (PX).
+    binary: bool,
 }
 
 impl Client {
     /// Create a new client instance.
-    pub fn new(stream: TcpStream) -> Client {
+    pub fn new(stream: TcpStream, binary: bool) -> Client {
         Client {
             stream: BufStream::new(stream),
+            binary,
         }
     }
 
     /// Create a new client instane from the given host, and connect to it.
-    pub fn connect(host: String) -> Result<Client, Error> {
+    pub fn connect(host: String, binary: bool) -> Result<Client, Error> {
         // Create a new stream, and instantiate the client
-        Ok(Client::new(create_stream(host)?))
+        Ok(Client::new(create_stream(host)?, binary))
     }
 
     /// Write a pixel to the given stream.
     pub fn write_pixel(&mut self, x: u32, y: u32, color: Color) -> Result<(), Error> {
-        // Write the command to set a pixel
-        self.write_command(&format!("PX {} {} {}", x, y, color.as_hex()))
+        if self.binary {
+            self.write_command(
+                &[
+                    b'P',
+                    b'B',
+                    x as u8,
+                    (x >> 8) as u8,
+                    y as u8,
+                    (y >> 8) as u8,
+                    color.r,
+                    color.g,
+                    color.b,
+                    color.a,
+                ],
+                false,
+            )
+        } else {
+            self.write_command(
+                format!("PX {} {} {}", x, y, color.as_hex()).as_bytes(),
+                true,
+            )
+        }
     }
 
     /// Read the size of the screen.
     pub fn read_screen_size(&mut self) -> Result<(u32, u32), Error> {
         // Read the screen size
         let data = self
-            .write_read_command("SIZE".into())
+            .write_read_command(b"SIZE")
             .expect("Failed to read screen size");
 
         // Build a regex to parse the screen size
@@ -77,26 +101,27 @@ impl Client {
     }
 
     /// Write the given command to the given stream.
-    fn write_command(&mut self, cmd: &str) -> Result<(), Error> {
+    fn write_command(&mut self, cmd: &[u8], newline: bool) -> Result<(), Error> {
         // Write the pixels and a new line
-        self.stream.write_all(cmd.as_bytes())?;
-        self.stream.write_all(b"\n")?;
+        self.stream.write_all(cmd)?;
+        if newline {
+            self.stream.write_all(b"\n")?;
+        }
 
         // Flush, make sure to clear the send buffer
         // TODO: only flush each 100 pixels?
         // TODO: make flushing configurable?
         // TODO: make buffer size configurable?
-        self.stream
-            .flush()?;
+        self.stream.flush()?;
 
         // Everything seems to be ok
         Ok(())
     }
 
     /// Write the given command to the given stream, and read the output.
-    fn write_read_command(&mut self, cmd: &str) -> Result<String, Error> {
+    fn write_read_command(&mut self, cmd: &[u8]) -> Result<String, Error> {
         // Write the command
-        self.write_command(cmd)?;
+        self.write_command(cmd, true)?;
 
         // Flush the pipe, ensure the command is actually sent
         self.stream.flush()?;
@@ -114,7 +139,7 @@ impl Client {
 impl Drop for Client {
     /// Nicely drop the connection when the client is disconnected.
     fn drop(&mut self) {
-        let _ = self.write_command("\nQUIT".into());
+        let _ = self.write_command(b"\nQUIT", true);
     }
 }
 

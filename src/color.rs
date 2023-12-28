@@ -3,10 +3,10 @@
 /// Represents a color with RGB values from 0 to 255.
 #[derive(Copy, Clone)]
 pub struct Color {
-    r: u8,
-    g: u8,
-    b: u8,
-    a: u8,
+    pub(crate) r: u8,
+    pub(crate) g: u8,
+    pub(crate) b: u8,
+    pub(crate) a: u8,
 }
 
 impl Color {
@@ -14,7 +14,7 @@ impl Color {
     ///
     /// The color channels must be between 0 and 255.
     pub fn from(r: u8, g: u8, b: u8, a: u8) -> Color {
-        Color { r, g, b, a}
+        Color { r, g, b, a }
     }
 
     /// Get a hexadecimal representation of the color,

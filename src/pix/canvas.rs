@@ -1,6 +1,6 @@
 use std::sync::mpsc::{self, Receiver, Sender};
-use std::thread::sleep;
 use std::thread;
+use std::thread::sleep;
 use std::time::Duration;
 
 use image::DynamicImage;
@@ -21,7 +21,13 @@ pub struct Canvas {
 
 impl Canvas {
     /// Create a new pixelflut canvas.
-    pub fn new(host: &str, painter_count: usize, size: (u32, u32), offset: (u32, u32)) -> Canvas {
+    pub fn new(
+        host: &str,
+        painter_count: usize,
+        size: (u32, u32),
+        offset: (u32, u32),
+        binary: bool,
+    ) -> Canvas {
         // Initialize the object
         let mut canvas = Canvas {
             host: host.to_string(),
@@ -35,14 +41,14 @@ impl Canvas {
         println!("Starting painter threads...");
 
         // Spawn some painters
-        canvas.spawn_painters();
+        canvas.spawn_painters(binary);
 
         // Return the canvas
         canvas
     }
 
     /// Spawn the painters for this canvas
-    fn spawn_painters(&mut self) {
+    fn spawn_painters(&mut self, binary: bool) {
         // Spawn some painters
         for i in 0..self.painter_count {
             // Determine the slice width
@@ -52,12 +58,12 @@ impl Canvas {
             let painter_area = Rect::from((i as u32) * width, 0, width, self.size.1);
 
             // Spawn the painter
-            self.spawn_painter(painter_area);
+            self.spawn_painter(painter_area, binary);
         }
     }
 
     /// Spawn a single painter in a thread.
-    fn spawn_painter(&mut self, area: Rect) {
+    fn spawn_painter(&mut self, area: Rect, binary: bool) {
         // Get the host that will be used
         let host = self.host.to_string();
 
@@ -76,12 +82,12 @@ impl Canvas {
                 // The painting loop
                 'paint: loop {
                     // Connect
-                    let client = match Client::connect(host.clone()) {
+                    let client = match Client::connect(host.clone(), binary) {
                         Ok(client) => client,
                         Err(e) => {
                             eprintln!("Painter failed to connect: {}", e);
                             break 'paint;
-                        },
+                        }
                     };
                     painter.set_client(Some(client));
 
