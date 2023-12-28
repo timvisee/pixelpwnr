@@ -13,6 +13,7 @@ Or some things may work slow.
 * Animated images, with multiple frame images
 * Control over render sizes and offset
 * Automatic image sizing and formatting
+* Blazingly fast [binary protocol](https://github.com/timvisee/pixelpwnr-server#the-binary-px-command) (`PB` with `--binary`)
 * Faster than most other clients :-)
 * Linux, Windows and macOS
 
