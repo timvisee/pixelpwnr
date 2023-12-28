@@ -79,26 +79,23 @@ impl Canvas {
             let mut painter = Painter::new(None, area, offset, None);
 
             loop {
-                // The painting loop
-                'paint: loop {
-                    // Connect
-                    let client = match Client::connect(host.clone(), binary) {
-                        Ok(client) => client,
-                        Err(e) => {
-                            eprintln!("Painter failed to connect: {}", e);
-                            break 'paint;
-                        }
-                    };
-                    painter.set_client(Some(client));
+                // Connect
+                match Client::connect(host.clone(), binary) {
+                    Ok(client) => {
+                        painter.set_client(Some(client));
 
-                    // Keep painting
-                    loop {
-                        if let Err(e) = painter.work(&rx) {
-                            println!("Painter error: {}", e);
-                            break 'paint;
+                        // Keep painting
+                        loop {
+                            if let Err(e) = painter.work(&rx) {
+                                println!("Painter error: {}", e);
+                                break;
+                            }
                         }
                     }
-                }
+                    Err(e) => {
+                        eprintln!("Painter failed to connect: {}", e);
+                    }
+                };
 
                 // Sleep for half a second before restarting the painter
                 sleep(Duration::from_millis(500));

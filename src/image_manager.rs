@@ -98,7 +98,7 @@ fn load_image(path: &str, size: (u16, u16)) -> DynamicImage {
     }
 
     // Load the image
-    let image = image::open(&path).unwrap();
+    let image = image::open(path).unwrap();
 
     // Resize the image to fit the screen
     image.resize_exact(size.0 as u32, size.1 as u32, FilterType::Gaussian)

@@ -32,7 +32,7 @@ fn start(arg_handler: &ArgHandler) {
 
     // Gather facts about the host
     let screen_size =
-        gather_host_facts(&arg_handler).expect("Failed to gather facts about pixelflut server");
+        gather_host_facts(arg_handler).expect("Failed to gather facts about pixelflut server");
 
     // Determine the size to use
     let size = arg_handler.size(Some(screen_size));
