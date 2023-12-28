@@ -50,21 +50,19 @@ impl Client {
     /// Write a pixel to the given stream.
     pub fn write_pixel(&mut self, x: u16, y: u16, color: Color) -> Result<(), Error> {
         if self.binary {
-            self.write_command(
-                &[
-                    b'P',
-                    b'B',
-                    x as u8,
-                    (x >> 8) as u8,
-                    y as u8,
-                    (y >> 8) as u8,
-                    color.r,
-                    color.g,
-                    color.b,
-                    color.a,
-                ],
-                false,
-            )
+            let mut data = [
+                b'P', b'B',
+                // these values will be filled in using to_le_bytes in the next step
+                // to account for the machines endianness
+                0, // x LSB
+                0, // x MSB
+                0, // y LSB
+                0, // y MSB
+                color.r, color.g, color.b, color.a,
+            ];
+            data[2..4].copy_from_slice(&x.to_le_bytes());
+            data[4..6].copy_from_slice(&y.to_le_bytes());
+            self.write_command(&data, false)
         } else {
             self.write_command(
                 format!("PX {} {} {}", x, y, color.as_hex()).as_bytes(),
