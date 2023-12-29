@@ -128,7 +128,7 @@ Options:
   -c, --count <COUNT>    Number of concurrent threads [default: number of CPUs]
   -r, --fps <RATE>       Frames per second with multiple images [default: 1]
   -b, --binary           Use binary mode to set pixels (`PB` protocol extension) [default: off]
-  -n, --no-flush         Do not flush socket after each pixel [default: on]
+  -f, --flush <ENABLED>  Flush socket after each pixel [default: true] [default: true] [possible values: true, false]
   -V, --version          Print version
 ```
 
