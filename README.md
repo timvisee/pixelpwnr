@@ -2,8 +2,9 @@
 A quick [pixelflut][pixelflut] ([video][pixelflut-video]) client in
 [Rust][rust] for use at [34C3][34C3], that _pwns_ whole pixelflut panels.
 
-For a high performance pixelflut server implementation, see:  
-[→ pixelpwnr-server (server)][pixelpwnr-server]
+For a high performance pixelflut client and server implementations, see:
+- [pixelpwnr-server][pixelpwnr-server]: server
+- [pixelpwnr-cast][pixelpwnr-cast]: cast your screen to a pixelflut server
 
 **Note:** This is a prototype project. Some things may not work correctly.
 Or some things may work slow.
@@ -137,7 +138,9 @@ ARGS:
 ```
 
 ## Relevant projects
-* [pixelpwnr-server (server)][pixelpwnr-server]
+
+- [pixelpwnr-server][pixelpwnr-server]: server
+- [pixelpwnr-cast][pixelpwnr-cast]: cast your screen to a pixelflut server
 
 ## License
 This project is released under the GNU GPL-3.0 license.
@@ -147,6 +150,7 @@ Check out the [LICENSE](LICENSE) file for more information.
 [34C3]: https://events.ccc.de/congress/2017/wiki/index.php/Main_Page
 [pixelflut]: https://cccgoe.de/wiki/Pixelflut
 [pixelflut-video]: https://vimeo.com/92827556/
+[pixelpwnr-cast]: https://github.com/timvisee/pixelpwnr-cast
 [pixelpwnr-server]: https://github.com/timvisee/pixelpwnr-server
 [rust]: https://www.rust-lang.org/
 [rustup]: https://rustup.rs/
