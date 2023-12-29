@@ -1,4 +1,5 @@
 # pixelpwnr
+
 A quick [pixelflut][pixelflut] ([video][pixelflut-video]) client in
 [Rust][rust] for use at [34C3][34C3], that _pwns_ whole pixelflut panels.
 
@@ -6,10 +7,8 @@ For a high performance pixelflut client and server implementations, see:
 - [pixelpwnr-server][pixelpwnr-server]: server
 - [pixelpwnr-cast][pixelpwnr-cast]: cast your screen to a pixelflut server
 
-**Note:** This is a prototype project. Some things may not work correctly.
-Or some things may work slow.
-
 ## Features
+
 * Many concurrent drawing pipes, fast multithreading
 * Animated images, with multiple frame images
 * Control over render sizes and offset
@@ -19,6 +18,7 @@ Or some things may work slow.
 * Linux, Windows and macOS
 
 ## Usage
+
 Pixelflut a simple image:
 ```bash
 # Flut a simple image.
@@ -48,6 +48,7 @@ Use the `--help` flag, or see the [help](#help) section for all available
 options.
 
 ## Installation
+
 For installation, Git and Rust cargo are required.
 Install the latest version of Rust with [rustup][rustup].
 
@@ -83,6 +84,7 @@ cargo build --release
 ```
 
 ## Performance & speed optimization
+
 There are many things that affect how quickly pixels can be painted on a
 pixelflut server.  
 Some of them are:
@@ -104,37 +106,30 @@ Things that improve painting performance:
 - Use multiple machines (servers) with multiple `pixelpwnr` instances to push
   pixels to the screen.
 
-## Future improvements
-This application is still in the prototyping phase, and many things can be
-improved for significantly better performance and usability.
-See the [TODO](TODO.md) file for a list of future improvements.
-
 ## Help
+
 ```text
-pixelpwnr --help
+$ pixelpwnr --help
 
-pixelpwnr 0.1
-Tim Visee <timvisee@gmail.com>
-A quick pixelflut client, that pwns pixelflut panels.
+Insanely fast pixelflut client for images and animations
 
-USAGE:
-    pixelpwnr [OPTIONS] <HOST> --image <PATH>...
+Usage: pixelpwnr [OPTIONS] --image <PATH>... <HOST>
 
-FLAGS:
-        --help       Prints help information
-    -V, --version    Prints version information
+Arguments:
+  <HOST>  The host to pwn "host:port"
 
-OPTIONS:
-    -i, --image <PATH>...    Image paths
-    -w, --width <PIXELS>     Draw width (def: screen width)
-    -h, --height <PIXELS>    Draw height (def: screen height)
-    -x <PIXELS>              Draw X offset (def: 0)
-    -y <PIXELS>              Draw Y offset (def: 0)
-    -c, --count <COUNT>      Number of concurrent threads (def: CPUs)
-    -r, --fps <RATE>         Frames per second with multiple images (def: 1)
-
-ARGS:
-    <HOST>    The host to pwn "host:port"
+Options:
+      --help             Show this help
+  -i, --image <PATH>...  Image path(s)
+  -w, --width <PIXELS>   Draw width [default: screen width]
+  -h, --height <PIXELS>  Draw height [default: screen height]
+  -x <PIXELS>            Draw X offset [default: 0]
+  -y <PIXELS>            Draw Y offset [default: 0]
+  -c, --count <COUNT>    Number of concurrent threads [default: number of CPUs]
+  -r, --fps <RATE>       Frames per second with multiple images [default: 1]
+  -b, --binary           Use binary mode to set pixels (`PB` protocol extension) [default: off]
+  -n, --no-flush         Do not flush socket after each pixel [default: on]
+  -V, --version          Print version
 ```
 
 ## Relevant projects
