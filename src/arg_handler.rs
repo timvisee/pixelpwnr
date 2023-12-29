@@ -16,7 +16,14 @@ pub struct Arguments {
     host: String,
 
     /// Image path(s)
-    #[arg(short, long, value_name = "PATH", required = true, alias = "images")]
+    #[arg(
+        short,
+        long,
+        value_name = "PATH",
+        required = true,
+        alias = "images",
+        num_args(1..)
+    )]
     image: Vec<String>,
 
     /// Draw width [default: screen width]
