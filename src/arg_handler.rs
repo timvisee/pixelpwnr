@@ -52,9 +52,9 @@ pub struct Arguments {
     #[arg(short, long, alias = "bin")]
     binary: bool,
 
-    /// Do not flush socket after each pixel [default: on]
-    #[arg(short, long)]
-    no_flush: bool,
+    /// Flush socket after each pixel [default: true]
+    #[arg(short, long, action = clap::ArgAction::Set, value_name = "ENABLED", default_value_t = true)]
+    flush: bool,
 }
 
 /// CLI argument handler.
@@ -112,8 +112,8 @@ impl ArgHandler {
         self.data.binary
     }
 
-    /// Whether to prevent flushing after each pixel.
-    pub fn no_flush(&self) -> bool {
-        self.data.no_flush
+    /// Whether to flush after each pixel.
+    pub fn flush(&self) -> bool {
+        self.data.flush
     }
 }

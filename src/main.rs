@@ -44,7 +44,7 @@ fn start(arg_handler: &ArgHandler) {
         size,
         arg_handler.offset(),
         arg_handler.binary(),
-        !arg_handler.no_flush(),
+        arg_handler.flush(),
     );
 
     // Load the image manager
