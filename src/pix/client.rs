@@ -30,21 +30,25 @@ pub struct Client {
 
     /// Whether to use binary mode (PB) instead of (PX).
     binary: bool,
+
+    /// Whether to flush the stream after each pixel.
+    flush: bool,
 }
 
 impl Client {
     /// Create a new client instance.
-    pub fn new(stream: TcpStream, binary: bool) -> Client {
+    pub fn new(stream: TcpStream, binary: bool, flush: bool) -> Client {
         Client {
             stream: BufStream::new(stream),
             binary,
+            flush,
         }
     }
 
     /// Create a new client instane from the given host, and connect to it.
-    pub fn connect(host: String, binary: bool) -> Result<Client, Error> {
+    pub fn connect(host: String, binary: bool, flush: bool) -> Result<Client, Error> {
         // Create a new stream, and instantiate the client
-        Ok(Client::new(create_stream(host)?, binary))
+        Ok(Client::new(create_stream(host)?, binary, flush))
     }
 
     /// Write a pixel to the given stream.
@@ -108,9 +112,10 @@ impl Client {
 
         // Flush, make sure to clear the send buffer
         // TODO: only flush each 100 pixels?
-        // TODO: make flushing configurable?
         // TODO: make buffer size configurable?
-        self.stream.flush()?;
+        if self.flush {
+            self.stream.flush()?;
+        }
 
         // Everything seems to be ok
         Ok(())

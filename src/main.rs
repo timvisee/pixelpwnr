@@ -44,6 +44,7 @@ fn start(arg_handler: &ArgHandler) {
         size,
         arg_handler.offset(),
         arg_handler.binary(),
+        !arg_handler.no_flush(),
     );
 
     // Load the image manager
@@ -56,7 +57,7 @@ fn start(arg_handler: &ArgHandler) {
 /// Gather important facts about the host.
 fn gather_host_facts(arg_handler: &ArgHandler) -> Result<(u16, u16), Error> {
     // Set up a client, and get the screen size
-    let size = Client::connect(arg_handler.host().to_string(), false)?.read_screen_size()?;
+    let size = Client::connect(arg_handler.host().to_string(), false, false)?.read_screen_size()?;
 
     // Print status
     println!("Gathered screen size: {}x{}", size.0, size.1);
