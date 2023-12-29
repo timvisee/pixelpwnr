@@ -1,4 +1,4 @@
-mod arg_handler;
+mod args;
 mod color;
 mod image_manager;
 mod painter;
@@ -7,7 +7,7 @@ mod rect;
 
 use std::io::Error;
 
-use arg_handler::ArgHandler;
+use args::ArgHandler;
 use image_manager::ImageManager;
 use pix::canvas::Canvas;
 use pix::client::Client;
