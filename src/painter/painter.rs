@@ -3,9 +3,9 @@ use std::sync::mpsc::Receiver;
 
 use image::{DynamicImage, Pixel};
 
-use color::Color;
-use pix::client::Client;
-use rect::Rect;
+use crate::color::Color;
+use crate::pix::client::Client;
+use crate::rect::Rect;
 
 /// A painter that paints on a pixelflut panel.
 pub struct Painter {

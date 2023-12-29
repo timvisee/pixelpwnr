@@ -1,6 +1,3 @@
-extern crate clap;
-extern crate num_cpus;
-
 use clap::Parser;
 
 #[derive(Parser)]

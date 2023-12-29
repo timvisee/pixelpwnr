@@ -3,11 +3,9 @@ use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
 
-use image;
+use crate::pix::canvas::Canvas;
 use image::imageops::FilterType;
 use image::DynamicImage;
-
-use pix::canvas::Canvas;
 
 /// A manager that manages all images to print.
 pub struct ImageManager {

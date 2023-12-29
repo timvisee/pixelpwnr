@@ -1,7 +1,3 @@
-extern crate clap;
-extern crate image;
-extern crate rayon;
-
 mod arg_handler;
 mod color;
 mod image_manager;

@@ -5,10 +5,10 @@ use std::time::Duration;
 
 use image::DynamicImage;
 
-use painter::handle::Handle;
-use painter::painter::Painter;
-use pix::client::Client;
-use rect::Rect;
+use crate::painter::handle::Handle;
+use crate::painter::painter::Painter;
+use crate::pix::client::Client;
+use crate::rect::Rect;
 
 /// A pixflut instance
 pub struct Canvas {

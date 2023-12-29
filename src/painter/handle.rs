@@ -1,11 +1,9 @@
-extern crate image;
-
 use std::sync::mpsc::Sender;
 use std::thread::JoinHandle;
 
 use image::DynamicImage;
 
-use rect::Rect;
+use crate::rect::Rect;
 
 /// A handle to a painter thread.
 ///

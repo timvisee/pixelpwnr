@@ -1,14 +1,11 @@
-extern crate bufstream;
-extern crate regex;
-
 use std::io::prelude::*;
 use std::io::{Error, ErrorKind};
 use std::net::TcpStream;
 
-use self::bufstream::BufStream;
-use self::regex::Regex;
+use bufstream::BufStream;
+use regex::Regex;
 
-use color::Color;
+use crate::color::Color;
 
 // The default buffer size for reading the client stream.
 // - Big enough so we don't have to expand
