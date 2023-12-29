@@ -1,11 +1,11 @@
+use rayon::prelude::*;
 use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
-use rayon::prelude::*;
 
 use image;
-use image::DynamicImage;
 use image::imageops::FilterType;
+use image::DynamicImage;
 
 use pix::canvas::Canvas;
 
@@ -28,13 +28,17 @@ impl ImageManager {
     }
 
     /// Instantiate the image manager, and load the images from the given paths.
-    pub fn load(paths: &[&str], size: (u32, u32)) -> ImageManager {
+    pub fn load(paths: &[&str], size: (u16, u16)) -> ImageManager {
         // Show a status message
         println!("Load and process {} image(s)...", paths.len());
 
         // Load the images from the paths
-        let image_manager =
-            ImageManager::from(paths.par_iter().map(|path| load_image(path, size)).collect());
+        let image_manager = ImageManager::from(
+            paths
+                .par_iter()
+                .map(|path| load_image(path, size))
+                .collect(),
+        );
 
         // TODO: process the image slices
 
@@ -84,7 +88,7 @@ impl ImageManager {
 }
 
 /// Load the image at the given path, and size it correctly
-fn load_image(path: &str, size: (u32, u32)) -> DynamicImage {
+fn load_image(path: &str, size: (u16, u16)) -> DynamicImage {
     // Create a path instance
     let path = Path::new(&path);
 
@@ -94,8 +98,8 @@ fn load_image(path: &str, size: (u32, u32)) -> DynamicImage {
     }
 
     // Load the image
-    let image = image::open(&path).unwrap();
+    let image = image::open(path).unwrap();
 
     // Resize the image to fit the screen
-    image.resize_exact(size.0, size.1, FilterType::Gaussian)
+    image.resize_exact(size.0 as u32, size.1 as u32, FilterType::Gaussian)
 }

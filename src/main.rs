@@ -2,7 +2,6 @@ extern crate clap;
 extern crate image;
 extern crate rayon;
 
-mod app;
 mod arg_handler;
 mod color;
 mod image_manager;
@@ -27,13 +26,13 @@ fn main() {
 }
 
 /// Start pixelflutting.
-fn start<'a>(arg_handler: &ArgHandler<'a>) {
+fn start(arg_handler: &ArgHandler) {
     // Start
     println!("Starting... (use CTRL+C to stop)");
 
     // Gather facts about the host
     let screen_size =
-        gather_host_facts(&arg_handler).expect("Failed to gather facts about pixelflut server");
+        gather_host_facts(arg_handler).expect("Failed to gather facts about pixelflut server");
 
     // Determine the size to use
     let size = arg_handler.size(Some(screen_size));
@@ -55,7 +54,7 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
 }
 
 /// Gather important facts about the host.
-fn gather_host_facts(arg_handler: &ArgHandler) -> Result<(u32, u32), Error> {
+fn gather_host_facts(arg_handler: &ArgHandler) -> Result<(u16, u16), Error> {
     // Set up a client, and get the screen size
     let size = Client::connect(arg_handler.host().to_string(), false)?.read_screen_size()?;
 

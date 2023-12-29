@@ -11,7 +11,7 @@ use rect::Rect;
 pub struct Painter {
     client: Option<Client>,
     area: Rect,
-    offset: (u32, u32),
+    offset: (u16, u16),
     image: Option<DynamicImage>,
 }
 
@@ -20,7 +20,7 @@ impl Painter {
     pub fn new(
         client: Option<Client>,
         area: Rect,
-        offset: (u32, u32),
+        offset: (u16, u16),
         image: Option<DynamicImage>,
     ) -> Painter {
         Painter {
@@ -62,7 +62,7 @@ impl Painter {
                 }
 
                 // Get the pixel at this location
-                let pixel = image.get_pixel(x, y);
+                let pixel = image.get_pixel(x as u32, y as u32);
 
                 // Get the channels
                 let channels = pixel.channels();
@@ -73,7 +73,6 @@ impl Painter {
 
                 // Define the color
                 let color = Color::from(channels[0], channels[1], channels[2], channels[3]);
-
 
                 // Set the pixel
                 if let Some(client) = &mut self.client {

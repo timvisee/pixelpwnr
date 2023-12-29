@@ -31,7 +31,12 @@ impl Handle {
     /// Push an image update.
     pub fn update_image(&self, full_image: &mut DynamicImage) {
         // Crop the image to the area
-        let image = full_image.crop(self.area.x, self.area.y, self.area.w, self.area.h);
+        let image = full_image.crop(
+            self.area.x as u32,
+            self.area.y as u32,
+            self.area.w as u32,
+            self.area.h as u32,
+        );
 
         // Push a new image to the thread
         // TODO: return this result
