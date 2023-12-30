@@ -1,11 +1,13 @@
+use image::codecs::gif::GifDecoder;
 use rayon::prelude::*;
+use std::fs::File;
 use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
 
 use crate::pix::canvas::Canvas;
 use image::imageops::FilterType;
-use image::DynamicImage;
+use image::{AnimationDecoder, DynamicImage};
 
 /// A manager that manages all images to print.
 pub struct ImageManager {
@@ -34,7 +36,7 @@ impl ImageManager {
         let image_manager = ImageManager::from(
             paths
                 .par_iter()
-                .map(|path| load_image(path, size))
+                .flat_map(|path| load_image(path, size))
                 .collect(),
         );
 
@@ -86,7 +88,7 @@ impl ImageManager {
 }
 
 /// Load the image at the given path, and size it correctly
-fn load_image(path: &str, size: (u16, u16)) -> DynamicImage {
+fn load_image(path: &str, size: (u16, u16)) -> Vec<DynamicImage> {
     // Create a path instance
     let path = Path::new(&path);
 
@@ -95,9 +97,30 @@ fn load_image(path: &str, size: (u16, u16)) -> DynamicImage {
         panic!("The given path does not exist or is not a file");
     }
 
-    // Load the image
-    let image = image::open(path).unwrap();
+    let extension = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase());
 
-    // Resize the image to fit the screen
-    image.resize_exact(size.0 as u32, size.1 as u32, FilterType::Gaussian)
+    // Load image(s)
+    let images = match extension.as_deref() {
+        // Load all GIF frames
+        Some("gif") => GifDecoder::new(File::open(path).unwrap())
+            .expect("failed to decode GIF file")
+            .into_frames()
+            .collect_frames()
+            .expect("failed to parse GIF frames")
+            .into_iter()
+            .map(|frame| DynamicImage::ImageRgba8(frame.into_buffer()))
+            .collect(),
+
+        // Load single image
+        _ => vec![image::open(path).unwrap()],
+    };
+
+    // Resize images to fit the screen
+    images
+        .into_iter()
+        .map(|image| image.resize_exact(size.0 as u32, size.1 as u32, FilterType::Gaussian))
+        .collect()
 }
