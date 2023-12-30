@@ -10,7 +10,7 @@ For a high performance pixelflut client and server implementations, see:
 ## Features
 
 * Many concurrent drawing pipes, fast multithreading
-* Animated images, with multiple frame images
+* Animated images, with GIFs or multiple frame images
 * Control over render sizes and offset
 * Automatic image sizing and formatting
 * Blazingly fast [binary protocol](https://github.com/timvisee/pixelpwnr-server#the-binary-px-command) (`PB` with `--binary`)
