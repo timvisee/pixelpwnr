@@ -11,15 +11,16 @@ use image::{AnimationDecoder, DynamicImage};
 
 /// A manager that manages all images to print.
 pub struct ImageManager {
-    images: Vec<DynamicImage>,
-    // Define whether the first image has been drawn
+    /// Image frames and their preferred delay.
+    images: Vec<(DynamicImage, Option<Duration>)>,
+    /// Define whether the first image has been drawn
     first: bool,
     index: isize,
 }
 
 impl ImageManager {
     /// Intantiate the image manager.
-    pub fn from(images: Vec<DynamicImage>) -> ImageManager {
+    pub fn from(images: Vec<(DynamicImage, Option<Duration>)>) -> ImageManager {
         ImageManager {
             images,
             first: false,
@@ -49,17 +50,19 @@ impl ImageManager {
     }
 
     /// Tick the image
-    pub fn tick(&mut self, canvas: &mut Canvas) {
+    ///
+    /// Returns the desired duration for othis frame.
+    pub fn tick(&mut self, canvas: &mut Canvas) -> Option<Duration> {
         // Get the image index bound
         let bound = self.images.len();
 
         // Just return if the bound is one, as nothing should be updated
         if self.first && bound == 1 {
-            return;
+            return None;
         }
 
         // Get the image to use
-        let image = &mut self.images[self.index as usize % bound];
+        let (image, duration) = &mut self.images[self.index as usize % bound];
 
         // Update the image on the canvas
         canvas.update_image(image);
@@ -69,6 +72,8 @@ impl ImageManager {
 
         // We have rendered the first image
         self.first = true;
+
+        *duration
     }
 
     /// Start working in the image manager.
@@ -78,17 +83,19 @@ impl ImageManager {
     /// with the specified frames per second.
     pub fn work(&mut self, canvas: &mut Canvas, fps: u32) {
         loop {
-            // Tick to use the next image
-            self.tick(canvas);
+            // Determine duration to wait, use frame direction and fall back to FPS
+            let frame_delay = self.tick(canvas);
+            let delay = frame_delay
+                .unwrap_or_else(|| Duration::from_millis((1000f32 / (fps as f32)) as u64));
 
             // Sleep until we need to show the next image
-            sleep(Duration::from_millis((1000f32 / (fps as f32)) as u64));
+            sleep(delay);
         }
     }
 }
 
 /// Load the image at the given path, and size it correctly
-fn load_image(path: &str, size: (u16, u16)) -> Vec<DynamicImage> {
+fn load_image(path: &str, size: (u16, u16)) -> Vec<(DynamicImage, Option<Duration>)> {
     // Create a path instance
     let path = Path::new(&path);
 
@@ -111,16 +118,27 @@ fn load_image(path: &str, size: (u16, u16)) -> Vec<DynamicImage> {
             .collect_frames()
             .expect("failed to parse GIF frames")
             .into_iter()
-            .map(|frame| DynamicImage::ImageRgba8(frame.into_buffer()))
+            .map(|frame| {
+                let frame_delay = Duration::from(frame.delay());
+                (
+                    DynamicImage::ImageRgba8(frame.into_buffer()),
+                    Some(frame_delay),
+                )
+            })
             .collect(),
 
         // Load single image
-        _ => vec![image::open(path).unwrap()],
+        _ => vec![(image::open(path).unwrap(), None)],
     };
 
     // Resize images to fit the screen
     images
         .into_iter()
-        .map(|image| image.resize_exact(size.0 as u32, size.1 as u32, FilterType::Gaussian))
+        .map(|(image, frame_delay)| {
+            (
+                image.resize_exact(size.0 as u32, size.1 as u32, FilterType::Gaussian),
+                frame_delay,
+            )
+        })
         .collect()
 }
