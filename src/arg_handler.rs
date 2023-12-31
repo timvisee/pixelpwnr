@@ -23,7 +23,8 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                     .help("The host to pwn \"host:port\"")
                     .required(true)
                     .index(1),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("image")
                     .short("i")
                     .long("image")
@@ -34,7 +35,8 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                     .multiple(true)
                     .display_order(1)
                     .takes_value(true),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("width")
                     .short("w")
                     .long("width")
@@ -42,7 +44,8 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                     .help("Draw width (def: screen width)")
                     .display_order(2)
                     .takes_value(true),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("height")
                     .short("h")
                     .long("height")
@@ -50,21 +53,24 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                     .help("Draw height (def: screen height)")
                     .display_order(3)
                     .takes_value(true),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("x")
                     .short("x")
                     .value_name("PIXELS")
                     .help("Draw X offset (def: 0)")
                     .display_order(4)
                     .takes_value(true),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("y")
                     .short("y")
                     .value_name("PIXELS")
                     .help("Draw Y offset (def: 0)")
                     .display_order(5)
                     .takes_value(true),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("count")
                     .short("c")
                     .long("count")
@@ -74,7 +80,8 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                     .help("Number of concurrent threads (def: CPUs)")
                     .display_order(6)
                     .takes_value(true),
-            ).arg(
+            )
+            .arg(
                 Arg::with_name("fps")
                     .short("r")
                     .long("fps")
@@ -82,10 +89,28 @@ impl<'a: 'b, 'b> ArgHandler<'a> {
                     .help("Frames per second with multiple images (def: 1)")
                     .display_order(7)
                     .takes_value(true),
-            ).get_matches();
+            )
+            .arg(
+                Arg::with_name("packagesize")
+                    .short("ps")
+                    .long("packagesize")
+                    .value_name("PACKAGESIZE")
+                    .help("Package size of of transfered packages")
+                    .display_order(5)
+                    .takes_value(true),
+            )
+            .get_matches();
 
         // Instantiate
         ArgHandler { matches }
+    }
+
+    /// Get the image offset.
+    pub fn package_size(&self) -> u32 {
+        self.matches
+            .value_of("packagesize")
+            .map(|x| x.parse::<u32>().expect("Invalid package size"))
+            .unwrap_or(1500)
     }
 
     /// Get the host property.

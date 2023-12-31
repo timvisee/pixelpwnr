@@ -44,6 +44,7 @@ fn start<'a>(arg_handler: &ArgHandler<'a>) {
         arg_handler.count(),
         size,
         arg_handler.offset(),
+        arg_handler.package_size(),
     );
 
     // Load the image manager

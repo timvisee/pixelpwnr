@@ -21,7 +21,13 @@ pub struct Canvas {
 
 impl Canvas {
     /// Create a new pixelflut canvas.
-    pub fn new(host: &str, painter_count: usize, size: (u32, u32), offset: (u32, u32)) -> Canvas {
+    pub fn new(
+        host: &str,
+        painter_count: usize,
+        size: (u32, u32),
+        offset: (u32, u32),
+        packet_size: u32,
+    ) -> Canvas {
         // Initialize the object
         let mut canvas = Canvas {
             host: host.to_string(),
@@ -35,14 +41,14 @@ impl Canvas {
         println!("Starting painter threads...");
 
         // Spawn some painters
-        canvas.spawn_painters();
+        canvas.spawn_painters(packet_size);
 
         // Return the canvas
         canvas
     }
 
     /// Spawn the painters for this canvas
-    fn spawn_painters(&mut self) {
+    fn spawn_painters(&mut self, packet_size: u32) {
         // Spawn some painters
         for i in 0..self.painter_count {
             // Determine the slice width
@@ -52,12 +58,12 @@ impl Canvas {
             let painter_area = Rect::from((i as u32) * width, 0, width, self.size.1);
 
             // Spawn the painter
-            self.spawn_painter(painter_area);
+            self.spawn_painter(painter_area, packet_size);
         }
     }
 
     /// Spawn a single painter in a thread.
-    fn spawn_painter(&mut self, area: Rect) {
+    fn spawn_painter(&mut self, area: Rect, packet_size: u32) {
         // Get the host that will be used
         let host = self.host.to_string();
 
@@ -83,8 +89,7 @@ impl Canvas {
                             break 'paint;
                         }
                     };
-                    //TODO: get value from argument
-                    client.packet_size(1500);
+                    client.packet_size(packet_size);
                     painter.set_client(Some(client));
 
                     // Keep painting
