@@ -27,6 +27,8 @@ const PIX_SERVER_SIZE_REGEX: &str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:
 /// to the pixelflut panel.
 pub struct Client {
     stream: BufStream<TcpStream>,
+    buffer_size: u32,
+    buffered_bytes: u32,
 }
 
 impl Client {
@@ -34,13 +36,26 @@ impl Client {
     pub fn new(stream: TcpStream) -> Client {
         Client {
             stream: BufStream::new(stream),
+            buffered_bytes: 0,
+            buffer_size: 1500,
         }
+    }
+
+    pub fn packet_size(&mut self, size: u32) {
+        self.buffer_size = size;
     }
 
     /// Create a new client instane from the given host, and connect to it.
     pub fn connect(host: String) -> Result<Client, Error> {
         // Create a new stream, and instantiate the client
         Ok(Client::new(create_stream(host)?))
+    }
+
+    /// Manually flush the stream
+    pub fn flush(&mut self) -> Result<(), Error> {
+        self.stream.flush()?;
+        self.buffered_bytes = 0;
+        Ok(())
     }
 
     /// Write a pixel to the given stream.
@@ -79,15 +94,18 @@ impl Client {
     /// Write the given command to the given stream.
     fn write_command(&mut self, cmd: &str) -> Result<(), Error> {
         // Write the pixels and a new line
+
+        let new_command_size = (cmd.len() + 1) as u32;
+
+        // Flush when there is no more room in the buffer
+
+        if self.buffered_bytes + new_command_size > self.buffer_size {
+            self.stream.flush()?;
+            self.buffered_bytes = 0;
+        }
+
         self.stream.write_all(cmd.as_bytes())?;
         self.stream.write_all(b"\n")?;
-
-        // Flush, make sure to clear the send buffer
-        // TODO: only flush each 100 pixels?
-        // TODO: make flushing configurable?
-        // TODO: make buffer size configurable?
-        self.stream
-            .flush()?;
 
         // Everything seems to be ok
         Ok(())
@@ -114,6 +132,7 @@ impl Client {
 impl Drop for Client {
     /// Nicely drop the connection when the client is disconnected.
     fn drop(&mut self) {
+        self.buffered_bytes = 0;
         let _ = self.write_command("\nQUIT".into());
     }
 }

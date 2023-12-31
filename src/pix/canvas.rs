@@ -76,13 +76,15 @@ impl Canvas {
                 // The painting loop
                 'paint: loop {
                     // Connect
-                    let client = match Client::connect(host.clone()) {
+                    let mut client = match Client::connect(host.clone()) {
                         Ok(client) => client,
                         Err(e) => {
                             eprintln!("Painter failed to connect: {}", e);
                             break 'paint;
-                        },
+                        }
                     };
+                    //TODO: get value from argument
+                    client.packet_size(1500);
                     painter.set_client(Some(client));
 
                     // Keep painting

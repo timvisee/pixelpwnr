@@ -85,6 +85,11 @@ impl Painter {
                 }
             }
         }
+        // if a frame is finished but the data should be sent
+        // No point in sending multiple frames in one package
+        if let Some(client) = &mut self.client {
+            client.flush()?;
+        }
 
         // Everything seems to be ok
         Ok(())
