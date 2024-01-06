@@ -1,8 +1,11 @@
+use std::fmt::Display;
 use std::io::prelude::*;
 use std::io::{Error, ErrorKind};
 use std::net::TcpStream;
+use std::str::FromStr;
 
 use bufstream::BufStream;
+use clap::ValueEnum;
 use regex::Regex;
 
 use crate::color::Color;
@@ -15,11 +18,34 @@ const CMD_READ_BUFFER_SIZE: usize = 32;
 // The response format of the screen size from a pixelflut server.
 const PIX_SERVER_SIZE_REGEX: &str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
 
-#[derive(Clone)]
+#[derive(Clone, ValueEnum)]
 pub enum FlushMode {
     Manual,
     Bytes,
     Commands,
+}
+
+impl FromStr for FlushMode {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "manual" => Ok(FlushMode::Manual),
+            "bytes" => Ok(FlushMode::Bytes),
+            "commands" => Ok(FlushMode::Commands),
+            _ => Err(()),
+        }
+    }
+}
+
+impl Display for FlushMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FlushMode::Manual => write!(f, "manual"),
+            FlushMode::Bytes => write!(f, "bytes"),
+            FlushMode::Commands => write!(f, "commands"),
+        }
+    }
 }
 
 /// A pixelflut client.

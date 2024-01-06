@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::pix::client::FlushMode;
+
 #[derive(Parser)]
 #[command(author, version, about, disable_help_flag = true)]
 pub struct Arguments {
@@ -49,9 +51,13 @@ pub struct Arguments {
     #[arg(short, long, alias = "bin")]
     binary: bool,
 
-    /// Flush socket after each pixel [default: true]
-    #[arg(short, long, action = clap::ArgAction::Set, value_name = "ENABLED", default_value_t = true)]
-    flush: bool,
+    /// Mode used for flushing the buffer [default: commands]
+    #[arg(long, value_name = "MODE", default_value_t = FlushMode::Commands)]
+    flushmode: FlushMode,
+
+    /// Size after which the buffer should be flushed [default: true]
+    #[arg(long, value_name = "PIXELS", default_value_t = 1)]
+    flushsize: u16,
 }
 
 /// CLI argument handler.
@@ -110,7 +116,12 @@ impl ArgHandler {
     }
 
     /// Whether to flush after each pixel.
-    pub fn flush(&self) -> bool {
-        self.data.flush
+    pub fn flush_mode(&self) -> FlushMode {
+        self.data.flushmode.clone()
+    }
+
+    /// Whether to flush after each pixel.
+    pub fn flush_size(&self) -> u16 {
+        self.data.flushsize
     }
 }

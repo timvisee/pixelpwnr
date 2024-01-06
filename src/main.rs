@@ -42,8 +42,8 @@ fn start(arg_handler: &ArgHandler) {
         size,
         arg_handler.offset(),
         arg_handler.binary(),
-        FlushMode::Commands,
-        1,
+        arg_handler.flush_mode(),
+        arg_handler.flush_size(),
     );
 
     // Load the image manager
