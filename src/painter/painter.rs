@@ -85,6 +85,9 @@ impl Painter {
             }
         }
 
+        if let Some(client) = &mut self.client {
+            client.flush()?;
+        }
         // Everything seems to be ok
         Ok(())
     }
