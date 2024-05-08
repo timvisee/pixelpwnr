@@ -175,7 +175,7 @@ impl Client {
             FlushMode::Commands => 1,
         };
 
-        if self.current_size + new_size > self.flush_size {
+        if self.current_size + new_size >= self.flush_size {
             self.flush()?;
         }
 
