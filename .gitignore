@@ -2,3 +2,5 @@
 **/*.rs.bk
 /testserver
 .*.swp
+result
+result-*
