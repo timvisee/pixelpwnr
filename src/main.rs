@@ -24,7 +24,7 @@ fn main() {
 /// Start pixelflutting.
 fn start(arg_handler: &ArgHandler) {
     // Start
-    println!("Starting... (use CTRL+C to stop)");
+    //println!("Starting... (use CTRL+C to stop)");
 
     // Gather facts about the host
     let screen_size =
@@ -56,7 +56,7 @@ fn gather_host_facts(arg_handler: &ArgHandler) -> Result<(u16, u16), Error> {
     let size = Client::connect(arg_handler.host().to_string(), false, false)?.read_screen_size()?;
 
     // Print status
-    println!("Gathered screen size: {}x{}", size.0, size.1);
+    //println!("Gathered screen size: {}x{}", size.0, size.1);
 
     Ok(size)
 }

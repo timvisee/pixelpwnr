@@ -16,8 +16,14 @@
                 version = manifest.version;
                 cargoLock.lockFile = ./Cargo.lock;
                 src = pkgs.lib.cleanSource ./.;
-        # Weitere Argumente hier hinzufügen...
         };
+
+        python-script = pkgs.python39.pkgs.buildPythonPackage rec {
+          pname = "client";
+          version = "1.0";
+
+          src = ./scripts;
+      };
  
     in{
 
@@ -35,10 +41,16 @@
         ];
 
         shellHook = ''
-          alias fire="./result/bin/pixelpwnr"
           python3 ./scripts/client.py
         '';
       };
+    };
+
+  packages.${system} = {
+        default = pkgs.writeShellScriptBin "script" ''
+          ${python-script}/bin/client.py "''${@:1}"
+        '';
+        pixelpwnr = pixelpwnr;
     };
     };
 }

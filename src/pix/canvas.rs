@@ -39,7 +39,7 @@ impl Canvas {
         };
 
         // Show a status message
-        println!("Starting painter threads...");
+        //println!("Starting painter threads...");
 
         // Spawn some painters
         canvas.spawn_painters(binary, flush);
@@ -88,19 +88,19 @@ impl Canvas {
                         // Keep painting
                         loop {
                             if let Err(e) = painter.work(&rx) {
-                                println!("Painter error: {}", e);
+                                //println!("Painter error: {}", e);
                                 break;
                             }
                         }
                     }
                     Err(e) => {
-                        eprintln!("Painter failed to connect: {}", e);
+                        //println!("Painter failed to connect: {}", e);
                     }
                 };
 
                 // Sleep for half a second before restarting the painter
                 sleep(Duration::from_millis(500));
-                println!("Restarting failed painter...");
+                //println!("Restarting failed painter...");
             }
         });
 

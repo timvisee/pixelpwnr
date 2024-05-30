@@ -31,7 +31,7 @@ impl ImageManager {
     /// Instantiate the image manager, and load the images from the given paths.
     pub fn load(paths: &[&str], size: (u16, u16)) -> ImageManager {
         // Show a status message
-        println!("Load and process {} image(s)...", paths.len());
+        //println!("Load and process {} image(s)...", paths.len());
 
         // Load the images from the paths
         let image_manager = ImageManager::from(
@@ -44,7 +44,7 @@ impl ImageManager {
         // TODO: process the image slices
 
         // We succeeded
-        println!("All images have been loaded successfully");
+        //println!("All images have been loaded successfully");
 
         image_manager
     }
