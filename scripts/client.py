@@ -7,10 +7,11 @@ import signal
 import os
 
 # Server-Einstellungen
-SERVER_HOST = '127.0.0.1'
+SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 9999
 
 target_address = None
+
 
 def receive_data(client_socket):
     global target_address
@@ -19,7 +20,7 @@ def receive_data(client_socket):
         target_address = client_socket.recv(1024).decode()
 
         # Empfange Bilddatei
-        with open('target_image.jpg', 'wb') as f:
+        with open("target_image.jpg", "wb") as f:
             while True:
                 bytes_read = client_socket.recv(4096)
                 if not bytes_read:
@@ -29,6 +30,7 @@ def receive_data(client_socket):
         print(f"Fehler beim Empfangen von Daten: {e}")
     finally:
         client_socket.close()
+
 
 def run_and_maybe_kill(binary_path, args, timeout):
     """
@@ -47,15 +49,16 @@ def run_and_maybe_kill(binary_path, args, timeout):
 
         # kill it
         os.kill(process.pid, signal.SIGTERM)
-        
+
     except Exception as e:
         print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     print("--- starting pixel client ---")
     print("-----------------------------")
     print("trying test connect to " + SERVER_HOST + ":" + str(SERVER_PORT) + " ...")
-    
+
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
@@ -66,15 +69,19 @@ if __name__ == "__main__":
         exit(1)
     else:
         print("connection succesfully \n")
-    
+
     while True:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         receive_data(client_socket)
-        
+
         binary_path = "./result/bin/pixelpwnr"  # Replace with the actual binary path
-        args = [target_address, "--image",  "/home/timl/SC/pixelpwnr/target_image.jpg"]  # Replace with actual arguments
-        
+        args = [
+            target_address,
+            "--image",
+            "/home/timl/SC/pixelpwnr/target_image.jpg",
+        ]  # Replace with actual arguments
+
         timeout = 30  # Time in seconds after which to kill the binary
 
         print("targeting: " + target_address)

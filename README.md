@@ -4,22 +4,24 @@ A quick [pixelflut][pixelflut] ([video][pixelflut-video]) client in
 [Rust][rust] for use at [34C3][34C3], that _pwns_ whole pixelflut panels.
 
 For a high performance pixelflut client and server implementations, see:
+
 - [pixelpwnr-server][pixelpwnr-server]: server
 - [pixelpwnr-cast][pixelpwnr-cast]: cast your screen to a pixelflut server
 
 ## Features
 
-* Many concurrent drawing pipes, fast multithreading
-* Animated images, with GIFs or multiple frame images
-* Control over render sizes and offset
-* Automatic image sizing and formatting
-* Blazingly fast [binary protocol](https://github.com/timvisee/pixelpwnr-server#the-binary-px-command) (`PB` with `--binary`)
-* Faster than most other clients :-)
-* Linux, Windows and macOS
+- Many concurrent drawing pipes, fast multithreading
+- Animated images, with GIFs or multiple frame images
+- Control over render sizes and offset
+- Automatic image sizing and formatting
+- Blazingly fast [binary protocol](https://github.com/timvisee/pixelpwnr-server#the-binary-px-command) (`PB` with `--binary`)
+- Faster than most other clients :-)
+- Linux, Windows and macOS
 
 ## Usage
 
 Pixelflut a simple image:
+
 ```bash
 # Flut a simple image.
 # - To host 127.0.0.1 on port 8080
@@ -33,6 +35,7 @@ pixelpwnr "127.0.0.1:8080" --image="image.png" -c=4
 ```
 
 Pixelflut an animated image:
+
 ```bash
 # Flut an animated image, with multiple frames.
 # - To host 127.0.0.1 on port 8080
@@ -88,6 +91,7 @@ cargo build --release
 There are many things that affect how quickly pixels can be painted on a
 pixelflut server.  
 Some of them are:
+
 - Size of the image that is drawn.
 - Amount of connections used to push pixels.
 - Performance of the machine `pixelpwnr` is running on.
@@ -96,6 +100,7 @@ Some of them are:
 - Performance of the pixelflut server.
 
 Things that improve painting performance:
+
 - Use a wired connection.
 - Use a LAN connection, closely linked to the pixelflut server. The lower
   latency the better, due to the connection being over TCP.
@@ -138,9 +143,9 @@ Options:
 - [pixelpwnr-cast][pixelpwnr-cast]: cast your screen to a pixelflut server
 
 ## License
+
 This project is released under the GNU GPL-3.0 license.
 Check out the [LICENSE](LICENSE) file for more information.
-
 
 [34C3]: https://events.ccc.de/congress/2017/wiki/index.php/Main_Page
 [pixelflut]: https://cccgoe.de/wiki/Pixelflut
