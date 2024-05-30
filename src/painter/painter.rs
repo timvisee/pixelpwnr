@@ -37,7 +37,7 @@ impl Painter {
         // Wait for an image, if no image has been set yet
         if self.image.is_none() {
             // Show a warning
-            println!("Painter thread is waiting for an image...");
+            //println!("Painter thread is waiting for an image...");
 
             // Sleep a little
             // TODO: Do a proper error return here
@@ -47,7 +47,7 @@ impl Painter {
             }
 
             // We may now continue
-            println!("Painter thread received an image, painting...");
+            //println!("Painter thread received an image, painting...");
         }
 
         // Get an RGB image

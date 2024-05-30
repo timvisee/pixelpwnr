@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import socket
 import time
 import subprocess
@@ -15,7 +17,6 @@ def receive_data(client_socket):
     try:
         # Empfange Zieladresse
         target_address = client_socket.recv(1024).decode()
-        print(f"Zieladresse empfangen: {target_address}")
 
         # Empfange Bilddatei
         with open('target_image.jpg', 'wb') as f:
@@ -24,12 +25,10 @@ def receive_data(client_socket):
                 if not bytes_read:
                     break
                 f.write(bytes_read)
-        print("Bilddatei empfangen und gespeichert als 'target_image.jpg'")
     except Exception as e:
         print(f"Fehler beim Empfangen von Daten: {e}")
     finally:
-        pass
-        #client_socket.close()
+        client_socket.close()
 
 def run_and_maybe_kill(binary_path, args, timeout):
     """
@@ -46,25 +45,37 @@ def run_and_maybe_kill(binary_path, args, timeout):
         # Wait for the specified timeout
         time.sleep(timeout)
 
-        # Check if the process is still running and kill it
-        if process.poll() is None:
-            print(f"Process {process.pid} is still running. Killing it.")
-            os.kill(process.pid, signal.SIGTERM)
-            # Alternatively, use process.terminate() or process.kill() if SIGTERM is not appropriate
-        else:
-            print(f"Process {process.pid} has already terminated.")
+        # kill it
+        os.kill(process.pid, signal.SIGTERM)
         
     except Exception as e:
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
+    print("--- starting pixel client ---")
+    print("-----------------------------")
+    print("trying test connect to " + SERVER_HOST + ":" + str(SERVER_PORT) + " ...")
+    
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((SERVER_HOST, SERVER_PORT))
+        client_socket.close()
+    except Exception as e:
+        print(e)
+        print("connection has failed")
+        exit(1)
+    else:
+        print("connection succesfully \n")
+    
     while True:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         receive_data(client_socket)
-        time.sleep(3)
+        
         binary_path = "./result/bin/pixelpwnr"  # Replace with the actual binary path
         args = [target_address, "--image",  "/home/timl/SC/pixelpwnr/target_image.jpg"]  # Replace with actual arguments
-        timeout = 10  # Time in seconds after which to kill the binary
+        
+        timeout = 30  # Time in seconds after which to kill the binary
 
+        print("targeting: " + target_address)
         run_and_maybe_kill(binary_path, args, timeout)
