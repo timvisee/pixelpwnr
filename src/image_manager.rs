@@ -1,6 +1,8 @@
 use image::codecs::gif::GifDecoder;
+use image::codecs::webp::WebPDecoder;
 use rayon::prelude::*;
 use std::fs::File;
+use std::io::BufReader;
 use std::path::Path;
 use std::thread::sleep;
 use std::time::Duration;
@@ -112,7 +114,7 @@ fn load_image(path: &str, size: (u16, u16)) -> Vec<(DynamicImage, Option<Duratio
     // Load image(s)
     let images = match extension.as_deref() {
         // Load all GIF frames
-        Some("gif") => GifDecoder::new(File::open(path).unwrap())
+        Some("gif") => GifDecoder::new(BufReader::new(File::open(path).unwrap()))
             .expect("failed to decode GIF file")
             .into_frames()
             .collect_frames()
@@ -126,6 +128,26 @@ fn load_image(path: &str, size: (u16, u16)) -> Vec<(DynamicImage, Option<Duratio
                 )
             })
             .collect(),
+        Some("webp") => {
+            let webp = WebPDecoder::new(BufReader::new(File::open(path).unwrap()))
+                .expect("failed to decode WEBP File");
+            if !webp.has_animation() {
+                vec![(image::open(path).unwrap(), None)]
+            } else {
+                webp.into_frames()
+                    .collect_frames()
+                    .expect("failed to parse webp frames")
+                    .into_iter()
+                    .map(|frame| {
+                        let frame_delay = Duration::from(frame.delay());
+                        (
+                            DynamicImage::ImageRgba8(frame.into_buffer()),
+                            Some(frame_delay),
+                        )
+                    })
+                    .collect()
+            }
+        }
 
         // Load single image
         _ => vec![(image::open(path).unwrap(), None)],

@@ -16,7 +16,7 @@ categories = [
 [dependencies]
 bufstream = "0.1"
 clap = { version = "4.4", features = [ "derive" ] }
-image = "0.23"
+image = "0.25"
 num_cpus = "1.13.1"
 regex = "1.5"
 rayon = "1.5.1"
