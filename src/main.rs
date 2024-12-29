@@ -26,12 +26,17 @@ fn start(arg_handler: &ArgHandler) {
     // Start
     println!("Starting... (use CTRL+C to stop)");
 
-    // Gather facts about the host
-    let screen_size =
-        gather_host_facts(arg_handler).expect("Failed to gather facts about pixelflut server");
-
     // Determine the size to use
-    let size = arg_handler.size(Some(screen_size));
+    let size = if let (Some(w), Some(h)) = arg_handler.size() {
+        (w, h)
+    } else {
+        let server_canvas =
+            gather_host_facts(arg_handler).expect("Failed to gather facts about pixelflut server");
+        (
+            arg_handler.size().0.unwrap_or(server_canvas.0),
+            arg_handler.size().1.unwrap_or(server_canvas.1),
+        )
+    };
 
     // Create a new pixelflut canvas
     let mut canvas = Canvas::new(

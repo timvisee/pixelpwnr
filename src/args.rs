@@ -83,15 +83,8 @@ impl ArgHandler {
 
     /// Get the image size.
     /// Use the given default value if not set.
-    pub fn size(&self, def: Option<(u16, u16)>) -> (u16, u16) {
-        (
-            self.data
-                .width
-                .unwrap_or(def.expect("No screen width set or known").0),
-            self.data
-                .height
-                .unwrap_or(def.expect("No screen height set or known").1),
-        )
+    pub fn size(&self) -> (Option<u16>, Option<u16>) {
+        (self.data.width, self.data.height)
     }
 
     /// Get the image offset.
