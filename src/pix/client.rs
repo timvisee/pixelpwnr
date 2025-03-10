@@ -1,8 +1,11 @@
+use std::fmt::Display;
 use std::io::prelude::*;
 use std::io::{Error, ErrorKind};
 use std::net::TcpStream;
+use std::str::FromStr;
 
 use bufstream::BufStream;
+use clap::ValueEnum;
 use regex::Regex;
 
 use crate::color::Color;
@@ -14,6 +17,36 @@ const CMD_READ_BUFFER_SIZE: usize = 32;
 
 // The response format of the screen size from a pixelflut server.
 const PIX_SERVER_SIZE_REGEX: &str = r"^(?i)\s*SIZE\s+([[:digit:]]+)\s+([[:digit:]]+)\s*$";
+
+#[derive(Clone, ValueEnum)]
+pub enum FlushMode {
+    Manual,
+    Bytes,
+    Commands,
+}
+
+impl FromStr for FlushMode {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "manual" => Ok(FlushMode::Manual),
+            "bytes" => Ok(FlushMode::Bytes),
+            "commands" => Ok(FlushMode::Commands),
+            _ => Err(()),
+        }
+    }
+}
+
+impl Display for FlushMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FlushMode::Manual => write!(f, "manual"),
+            FlushMode::Bytes => write!(f, "bytes"),
+            FlushMode::Commands => write!(f, "commands"),
+        }
+    }
+}
 
 /// A pixelflut client.
 ///
@@ -28,24 +61,38 @@ pub struct Client {
     /// Whether to use binary mode (PB) instead of (PX).
     binary: bool,
 
-    /// Whether to flush the stream after each pixel.
-    flush: bool,
+    /// When the stream should be flushed.
+    flush_mode: FlushMode,
+    current_size: u16,
+    flush_size: u16,
 }
 
 impl Client {
     /// Create a new client instance.
-    pub fn new(stream: TcpStream, binary: bool, flush: bool) -> Client {
+    pub fn new(stream: TcpStream, binary: bool, flush_mode: FlushMode, flush_size: u16) -> Client {
         Client {
             stream: BufStream::new(stream),
             binary,
-            flush,
+            flush_mode,
+            flush_size,
+            current_size: 0,
         }
     }
 
     /// Create a new client instane from the given host, and connect to it.
-    pub fn connect(host: String, binary: bool, flush: bool) -> Result<Client, Error> {
+    pub fn connect(
+        host: String,
+        binary: bool,
+        flush_mode: FlushMode,
+        flush_size: u16,
+    ) -> Result<Client, Error> {
         // Create a new stream, and instantiate the client
-        Ok(Client::new(create_stream(host)?, binary, flush))
+        Ok(Client::new(
+            create_stream(host)?,
+            binary,
+            flush_mode,
+            flush_size,
+        ))
     }
 
     /// Write a pixel to the given stream.
@@ -99,22 +146,49 @@ impl Client {
         }
     }
 
+    /// Flush the write buffer.
+    pub fn flush(&mut self) -> Result<(), Error> {
+        self.stream.flush()?;
+        self.current_size = 0;
+        Ok(())
+    }
+
     /// Write the given command to the given stream.
     fn write_command(&mut self, cmd: &[u8], newline: bool) -> Result<(), Error> {
         // Write the pixels and a new line
+
+        let new_size: u16 = match self.flush_mode {
+            FlushMode::Manual => {
+                self.stream.write_all(cmd)?;
+                if newline {
+                    self.stream.write_all(b"\n")?;
+                }
+                return Ok(());
+            }
+            FlushMode::Bytes => {
+                let mut new_size = cmd.len();
+                if newline {
+                    new_size += 1;
+                }
+                new_size as u16
+            }
+            FlushMode::Commands => 1,
+        };
+
+        if self.current_size + new_size >= self.flush_size {
+            self.flush()?;
+        }
+
         self.stream.write_all(cmd)?;
         if newline {
             self.stream.write_all(b"\n")?;
         }
+        self.current_size += new_size;
 
-        // Flush, make sure to clear the send buffer
-        // TODO: only flush each 100 pixels?
-        // TODO: make buffer size configurable?
-        if self.flush {
-            self.stream.flush()?;
+        if self.current_size == self.flush_size {
+            self.flush()?;
         }
 
-        // Everything seems to be ok
         Ok(())
     }
 
