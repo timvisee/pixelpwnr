@@ -136,6 +136,7 @@ Options:
 
 - [pixelpwnr-server][pixelpwnr-server]: server
 - [pixelpwnr-cast][pixelpwnr-cast]: cast your screen to a pixelflut server
+- [pixelpwnr-exporter](https://crates.io/crates/pixelpwnr-exporter): a prometheus metrics exporter
 
 ## License
 This project is released under the GNU GPL-3.0 license.
