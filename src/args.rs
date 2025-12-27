@@ -31,11 +31,21 @@ pub struct Arguments {
     height: Option<u16>,
 
     /// Draw X offset
-    #[arg(short, value_name = "PIXELS", default_value_t = 0)]
-    x: u16,
+    #[arg(
+        short,
+        value_name = "PIXELS",
+        default_value_t = 0,
+        allow_hyphen_values = true
+    )]
+    x: i16,
     /// Draw Y offset
-    #[arg(short, value_name = "PIXELS", default_value_t = 0)]
-    y: u16,
+    #[arg(
+        short,
+        value_name = "PIXELS",
+        default_value_t = 0,
+        allow_hyphen_values = true
+    )]
+    y: i16,
 
     /// Number of concurrent threads [default: number of CPUs]
     #[arg(short, long, aliases = ["thread", "threads"])]
@@ -88,7 +98,7 @@ impl ArgHandler {
     }
 
     /// Get the image offset.
-    pub fn offset(&self) -> (u16, u16) {
+    pub fn offset(&self) -> (i16, i16) {
         (self.data.x, self.data.y)
     }
 

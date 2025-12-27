@@ -11,7 +11,7 @@ use crate::rect::Rect;
 pub struct Painter {
     client: Option<Client>,
     area: Rect,
-    offset: (u16, u16),
+    offset: (i16, i16),
     image: Option<DynamicImage>,
 }
 
@@ -20,7 +20,7 @@ impl Painter {
     pub fn new(
         client: Option<Client>,
         area: Rect,
-        offset: (u16, u16),
+        offset: (i16, i16),
         image: Option<DynamicImage>,
     ) -> Painter {
         Painter {
@@ -74,13 +74,16 @@ impl Painter {
                 // Define the color
                 let color = Color::from(channels[0], channels[1], channels[2], channels[3]);
 
+                let x_calculated: u16 = ((x + self.area.x) as i16 + self.offset.0)
+                    .try_into()
+                    .unwrap();
+                let y_calculated: u16 = ((y + self.area.y) as i16 + self.offset.1)
+                    .try_into()
+                    .unwrap();
+
                 // Set the pixel
                 if let Some(client) = &mut self.client {
-                    client.write_pixel(
-                        x + self.area.x + self.offset.0,
-                        y + self.area.y + self.offset.1,
-                        color,
-                    )?;
+                    client.write_pixel(x_calculated, y_calculated, color)?;
                 }
             }
         }

@@ -16,7 +16,7 @@ pub struct Canvas {
     painter_count: usize,
     painter_handles: Vec<Handle>,
     size: (u16, u16),
-    offset: (u16, u16),
+    offset: (i16, i16),
 }
 
 impl Canvas {
@@ -25,7 +25,7 @@ impl Canvas {
         host: &str,
         painter_count: usize,
         size: (u16, u16),
-        offset: (u16, u16),
+        offset: (i16, i16),
         binary: bool,
         flush: bool,
     ) -> Canvas {
