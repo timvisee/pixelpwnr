@@ -10,6 +10,8 @@ use crate::painter::painter::Painter;
 use crate::pix::client::Client;
 use crate::rect::Rect;
 
+use super::client::FlushMode;
+
 /// A pixflut instance
 pub struct Canvas {
     host: String,
@@ -27,7 +29,8 @@ impl Canvas {
         size: (u16, u16),
         offset: (i16, i16),
         binary: bool,
-        flush: bool,
+        flush_mode: FlushMode,
+        flush_size: u16,
     ) -> Canvas {
         // Initialize the object
         let mut canvas = Canvas {
@@ -42,14 +45,14 @@ impl Canvas {
         println!("Starting painter threads...");
 
         // Spawn some painters
-        canvas.spawn_painters(binary, flush);
+        canvas.spawn_painters(binary, flush_mode, flush_size);
 
         // Return the canvas
         canvas
     }
 
     /// Spawn the painters for this canvas
-    fn spawn_painters(&mut self, binary: bool, flush: bool) {
+    fn spawn_painters(&mut self, binary: bool, flush_mode: FlushMode, flush_size: u16) {
         // Spawn some painters
         for i in 0..self.painter_count {
             // Determine the slice width
@@ -59,12 +62,12 @@ impl Canvas {
             let painter_area = Rect::from((i as u16) * width, 0, width, self.size.1);
 
             // Spawn the painter
-            self.spawn_painter(painter_area, binary, flush);
+            self.spawn_painter(painter_area, binary, flush_mode.clone(), flush_size);
         }
     }
 
     /// Spawn a single painter in a thread.
-    fn spawn_painter(&mut self, area: Rect, binary: bool, flush: bool) {
+    fn spawn_painter(&mut self, area: Rect, binary: bool, flush_mode: FlushMode, flush_size: u16) {
         // Get the host that will be used
         let host = self.host.to_string();
 
@@ -81,7 +84,7 @@ impl Canvas {
 
             loop {
                 // Connect
-                match Client::connect(host.clone(), binary, flush) {
+                match Client::connect(host.clone(), binary, flush_mode.clone(), flush_size) {
                     Ok(client) => {
                         painter.set_client(Some(client));
 
